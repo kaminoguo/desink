@@ -30,7 +30,14 @@
 \usepackage[capitalize,noabbrev]{cleveref}
 
 % Table spacing
-\renewcommand{\arraystretch}{1.15}
+\renewcommand{\arraystretch}{1.05}
+
+% Float spacing compression
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+\setlength{\intextsep}{6pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{4pt}
+\setlength{\belowcaptionskip}{0pt}
 
 % Colors (Okabe-Ito, colorblind-safe)
 \definecolor{colRaw}{HTML}{D55E00}
@@ -88,7 +95,7 @@ With the dominant artifact removed, we observe a previously invisible training p
 This \emph{shortcut-to-full-rank transition} occurs at step~512 across all three Pythia model sizes (70M/160M/410M) and at step~1{,}000 in OLMo-2 1B, suggesting an intrinsic property of transformer optimization: models first learn a low-rank shortcut (the marginal token distribution), then depart toward richer, full-rank representations.
 
 \paragraph{Contributions.}
-\begin{enumerate}[leftmargin=1.5em,itemsep=2pt,topsep=3pt]
+\begin{enumerate}[leftmargin=1.5em,itemsep=0pt,topsep=1pt]
     \item \textbf{Sink contamination} (\S\ref{sec:theory}--\ref{sec:scope}): five standard spectral metrics are systematically biased by the attention sink. Rogue dimensions $\approx$ sink direction (95.7\% overlap). The effect is specific to PC1. A single-parameter contamination model achieves $R^2 = 0.978$. Injecting a synthetic sink into clean representations reproduces the phantom trajectory, completing the causal loop.
     \item \textbf{Phantom phases dissolved} (\S\ref{sec:true}): de-sinking eliminates geometric phases and reverses rank collapse to rank growth across three model sizes (70M/160M/1.4B). Raw ER is significantly anti-correlated with capability ($\rho = -0.59$ to $-0.72$, $p < 0.02$).
     \item \textbf{A hidden training transition revealed} (\S\ref{sec:alignment}): unembedding alignment peaks then declines---universal across four model families, with a depth-dependent inverted-U departure profile.
@@ -103,11 +110,9 @@ This \emph{shortcut-to-full-rank transition} occurs at step~512 across all three
 Sinks arise from the softmax constraint~\citep{sun2024massive}, emerge early and strengthen with scale~\citep{gu2025attention}, and serve computational roles with near-zero value states~\citep{barbero2025why}.
 \citet{cancedda2024spectral} decomposed sink signals via the unembedding spectrum.
 \citet{zhang2025catch} showed 1--2 sink ``tags'' explain 20--70\% of PCA variance in attention outputs.
-\citet{queipodellano2025sinks} proved massive activations \emph{necessarily} collapse effective rank, interpreting this as functional compression within a ``Mix-Compress-Refine'' framework.
-Their Theorem~1 establishes a \emph{static} property: at any given layer, sink-dominated representations have low effective rank.
-Our Theorem~\ref{thm:e1} establishes a \emph{dynamic} consequence: when this property is tracked over training checkpoints, it generates phantom phase transitions in temporal metrics---a distinct claim requiring separate proof and validation.
-They do not analyze training dynamics across checkpoints, do not show phantom phases, and do not propose de-sinking.
-Our contribution is orthogonal: they study what sinks \emph{are}; we study what sinks \emph{do to training-dynamics measurements}.
+\citet{queipodellano2025sinks} proved massive activations \emph{necessarily} collapse effective rank, interpreting this as functional compression.
+Their Theorem~1 is \emph{static} (sinks collapse ER at a given layer); our Theorem~\ref{thm:e1} establishes the \emph{dynamic} consequence: phantom phase transitions across training checkpoints.
+They study what sinks \emph{are}; we study what sinks \emph{do to training-dynamics measurements}.
 
 \paragraph{Spectral training dynamics.}
 \citet{li2025tracing} identified three geometric phases using RankMe/$\alpha$-ReQ on OLMo and Pythia.
@@ -149,30 +154,8 @@ The de-sinked representations are $\mathbf{H}_{\text{ds}} = \mathbf{H} - (\mathb
 Both this method and an alternative (normalized mean of position-0 across sequences) yield nearly identical directions (\S\ref{sec:controls}), confirming that PC1 in sink-affected layers \emph{is} the sink direction.
 
 \paragraph{De-sinking is specific, not generic.}
-Operationally, de-sinking resembles All-but-the-Top~\citep{mu2018allbutthetop}, which removes PC1 to improve word embeddings, and its extensions to contextualized representations~\citep{li2020bertflow,rajaee2021cluster}.
-The key difference is motivation and scope: these are \emph{engineering recipes} for improving downstream performance; de-sinking is a \emph{diagnostic correction} for training dynamics analysis, grounded in Theorem~\ref{thm:e1}'s prediction that a single invariant component is responsible.
-We do not claim de-sinking as a methodological contribution---the operation is simple; the insight is identifying \emph{what} PC1 is (the attention sink), \emph{why} it contaminates metrics (Theorem~\ref{thm:e1}), and \emph{what happens} when you correct for it.
-Crucially, the effect is specific to PC1: removing PC2, PC3, or a random direction produces negligible change in $E_1$ or ER, while PC1 removal has a dramatic effect (Table~\ref{tab:specificity}).
-This rules out the concern that ``removing any dominant direction'' would produce similar results---only the sink-dominated direction matters.
-
-\begin{table}[t]
-\centering
-\caption{\textbf{De-sinking is specific to PC1.} Removing PC2, PC3, or a random direction has negligible effect. Pythia-70M, step~143{,}000.}
-\label{tab:specificity}
-\small
-\begin{tabular}{@{}llcccc@{}}
-\toprule
-& & \textbf{Original} & \textbf{Remove PC1} & \textbf{Remove PC2} & \textbf{Remove random} \\
-\midrule
-\multirow{2}{*}{L3} & $E_1$ & 0.279 & \textbf{0.048} & 0.304 & 0.273 \\
-& ER & 14.6 & \textbf{32.1} & 14.8 & 15.7 \\
-\midrule
-\multirow{2}{*}{L5} & $E_1$ & 0.529 & \textbf{0.142} & 0.567 & 0.529 \\
-& ER & 9.2 & \textbf{25.6} & 8.3 & 9.2 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
+De-sinking operationally resembles All-but-the-Top~\citep{mu2018allbutthetop} and its extensions~\citep{li2020bertflow,rajaee2021cluster}, but serves a different purpose: it is a \emph{diagnostic correction} for training dynamics analysis, grounded in Theorem~\ref{thm:e1}, not an engineering recipe for downstream performance.
+The effect is specific to PC1: removing PC2, PC3, or a random direction produces negligible change (Appendix~\ref{app:specificity}).
 The spectral gap between the first and second singular values provides a principled justification for removing exactly one direction: in GPT-2, the gap exceeds $14\times$ at L2--L4, while in Pythia-70M it reaches $4.6\times$ at L2.
 Non-sink layers show gaps of $1$--$2\times$.
 
@@ -233,41 +216,17 @@ Figure~\ref{fig:hero}(c) shows the fit: $\kappa = 0.024$ yields $R^2 = 0.978$.
 Phase~1 transient points (${\sim}$step 32--512) deviate from theory because content representations genuinely reorganize during this period---precisely the behavior expected if Phase~1 is a real training transition and Phases~2--3 are artifacts of sink growth.
 
 \paragraph{Model robustness.}
-One might worry that any smooth monotonic function could fit the $E_1$ trajectory with high $R^2$.
-We test this by comparing Theorem~\ref{thm:e1} (1 parameter, uses $E_1^c$ as input) against generic alternatives that do not incorporate content information: a sigmoid $a\alpha^2/(b+\alpha^2)$ (2 params), a logistic (3 params), and a power law (2 params).
-Theorem~\ref{thm:e1} achieves $R^2 = 0.978$ with $\text{AIC} = -127.8$; the best alternative (logistic, 3 params) reaches only $R^2 = 0.945$ with $\text{AIC} = -105.3$.
-A single physically-motivated parameter outperforms three free parameters because it leverages the de-sinked baseline $E_1^c$---precisely the content information that generic models lack.
-Hold-out cross-validation (leave-3-out, 20 splits) yields $R^2 = 0.972$, confirming the fit does not overfit to the 20 checkpoints.
-Residual analysis shows Phase~1 deviations are $1.55\times$ larger than non-Phase-1 residuals, consistent with Phase~1 containing genuine representational change not captured by the pure-sink model.
+Theorem~\ref{thm:e1} (1 param, $R^2 = 0.978$, AIC $= -127.8$) outperforms the best generic alternative (logistic, 3 params, $R^2 = 0.945$, AIC $= -105.3$) because it leverages content information via $E_1^c$.
+Leave-3-out cross-validation (20 splits) yields $R^2 = 0.972$; Phase~1 residuals are $1.55\times$ larger than non-Phase-1, consistent with genuine representational change during that period.
 
 \subsection{Manufacturing Phantom Phases}\label{sec:manufacture}
 
 The evidence so far establishes \emph{necessity}: removing the sink eliminates phantom structure.
 We now establish \emph{sufficiency}: injecting a synthetic sink into clean representations produces phantom structure from scratch.
 
-Starting from Pythia-70M at step~512---where the sink has not yet formed ($\alpha \approx 1.0$)---we de-sink the hidden states to obtain a clean content matrix, then add a rank-1 perturbation $\alpha\,\mathbf{e}_0\mathbf{s}^\top$ along the empirically observed sink direction with controlled strength $\alpha$.
-
-\begin{table}[t]
-\centering
-\caption{\textbf{Phantom phases manufactured from clean representations.} Injecting a synthetic sink into de-sinked step-512 hidden states (Pythia-70M L3) reproduces the entire phantom trajectory.}
-\label{tab:manufacture}
-\small
-\begin{tabular}{@{}lcccccccc@{}}
-\toprule
-Injected $\alpha$ & 0 & 3 & 5 & 7 & 10 & 15 & 20 & 30 \\
-\midrule
-$E_1$ & 0.063 & 0.081 & 0.197 & 0.325 & 0.496 & 0.689 & 0.797 & 0.898 \\
-ER & 140 & 124 & 87 & 53 & 24 & 9 & 5 & 2.3 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Table~\ref{tab:manufacture} shows the result.
-As $\alpha$ grows from 0 to 30, $E_1$ rises from 0.063 to 0.898 and ER collapses from 140 to 2.3---reproducing the entire ``rank collapse'' trajectory observed during actual training, starting from representations that exhibit no such collapse.
-The $\alpha$ range of 10--15$\times$ matches the empirically observed sink strength at convergence, and the resulting $E_1$ values match the raw measurements at late checkpoints.
-
-Phantom phases can be manufactured at will.
-Combined with the removal experiments (\S\ref{sec:validation}), this establishes a complete causal loop: the attention sink is both necessary \emph{and} sufficient to produce the observed spectral artifacts.
+Starting from Pythia-70M at step~512---where the sink has not yet formed ($\alpha \approx 1.0$)---we de-sink the hidden states, then add a rank-1 perturbation along the empirical sink direction with controlled strength $\alpha$.
+As $\alpha$ grows from 0 to 30, $E_1$ rises from 0.063 to 0.898 and ER collapses from 140 to 2.3 (Appendix~\ref{app:manufacture})---reproducing the entire phantom trajectory from clean representations.
+Combined with the removal experiments (\S\ref{sec:validation}), this completes a causal loop: the attention sink is both necessary \emph{and} sufficient to produce the observed spectral artifacts.
 
 %======================================================================
 \section{Scope of Contamination}\label{sec:scope}
@@ -398,23 +357,6 @@ We define \emph{lm100 alignment} as the fraction of hidden-state variance captur
 
 \subsection{The Alignment Peak}\label{sec:peak}
 
-\begin{table}[t]
-\centering
-\caption{\textbf{The alignment peak is universal.} All Pythia models peak at step~512; OLMo-2 1B peaks at step~1{,}000.}
-\label{tab:peak}
-\small
-\begin{tabular}{@{}lccccc@{}}
-\toprule
-\textbf{Model} & \textbf{Mid layer} & \textbf{Peak step} & \textbf{Peak lm100} & \textbf{Final lm100} & \textbf{Retained} \\
-\midrule
-Pythia-70M & L2 & 512 & 34.8\% & 6.4\% & 18\% \\
-Pythia-160M & L5 & 512 & 32.3\% & 16.4\% & 51\% \\
-Pythia-410M & L12 & 512 & 39.7\% & 12.9\% & 33\% \\
-OLMo-2 1B & --- & 1{,}000 & 19.8\% & 5.5\% & 28\% \\
-\bottomrule
-\end{tabular}
-\end{table}
-
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{figs/fig5_alignment.pdf}
@@ -428,44 +370,21 @@ Figure~\ref{fig:alignment}(a) shows the trajectory.
 Early in training, alignment rises sharply as models learn the marginal token distribution---efficiently solved by aligning hidden states with the unembedding matrix's high-gain directions.
 After step~512, alignment declines: the model transitions from this low-rank shortcut to full-rank encoding.
 
-Four observations confirm this is a genuine training transition, not a metric artifact:
-\textbf{(i)}~At the alignment peak, de-sinked ER begins expanding rapidly (Pythia-410M: $30.0 \to 49.0$ between steps 512 and 1{,}000)---the model is simultaneously departing from unembedding alignment \emph{and} expanding its representational rank.
-\textbf{(ii)}~All three Pythia models peak at step~512 despite different capacities and loss values at peak (6.04/6.26/6.82)---the transition is step-driven, not loss-driven.
-\textbf{(iii)}~OLMo-2 1B (Llama architecture, Dolma data) peaks at step~1{,}000, confirming this is architecture-general.
-\textbf{(iv)}~Sink $E_1$ is only 10.8--13.7\% at peak---the sink has not yet formed, so the alignment peak is independent of the sink artifact.
+Four observations confirm this is genuine:
+\textbf{(i)}~de-sinked ER expands rapidly at the alignment peak (Pythia-410M: $30 \to 49$ at steps 512--1{,}000);
+\textbf{(ii)}~all Pythia models peak at step~512 despite different loss values---step-driven, not loss-driven;
+\textbf{(iii)}~OLMo-2 1B (Llama architecture) peaks at step~1{,}000, confirming architecture-generality;
+\textbf{(iv)}~sink $E_1$ is only 10.8--13.7\% at peak, so the alignment signal is independent of the sink.
 
 \subsection{Middle Layers Depart Most}\label{sec:inverted}
 
-\begin{table}[t]
-\centering
-\caption{\textbf{Per-layer departure: inverted-U.} Middle layers depart most; first and last do not.}
-\label{tab:inverted}
-\small
-\begin{tabular}{@{}ccccc@{}}
-\toprule
-\textbf{Layer} & \textbf{Dist.\ to output} & \textbf{Peak lm100} & \textbf{Final lm100} & \textbf{Departure} \\
-\midrule
-L0 & 5 & 29.4\% & 29.3\% & $1.00\times$ \\
-L1 & 4 & 45.8\% & 43.6\% & $1.05\times$ \\
-L2 & 3 & 62.2\% & 51.7\% & $\mathbf{1.21\times}$ \\
-L3 & 2 & 68.2\% & 60.3\% & $1.13\times$ \\
-L4 & 1 & 72.4\% & 69.9\% & $1.04\times$ \\
-L5 & 0 & 77.2\% & 75.8\% & $1.02\times$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The profile is not monotonic with depth.
-L0 never aligns strongly (peak 29\%) and cannot depart.
-L5 is structurally constrained to remain aligned for prediction.
-Middle layers depart most because they face alignment pressure from the gradient \emph{and} have downstream layers to compensate.
-Departure requires depth: a 1-layer model shows $1.02\times$; departure appears at 3+ layers.
+The departure profile follows an inverted-U (Appendix~\ref{app:inverted}): L0 never aligns strongly (peak 29\%) and cannot depart; L5 is structurally constrained to remain aligned for prediction; middle layers (L2: $1.21\times$) depart most because they face alignment pressure from the gradient \emph{and} have downstream layers to compensate.
 
 \subsection{Interpretation: From Shortcut to Full-Rank Computation}\label{sec:interpret}
 
-Early training reduces loss fastest by aligning hidden states with the unembedding matrix---learning the marginal token distribution via a low-rank shortcut~\citep{chang2022word,cagnetta2024distributional}.
-As high-frequency tokens saturate, further improvement requires context-dependent representations for rare tokens, driving departure to full-rank computation.
-This shortcut-to-full-rank transition is invisible in raw metrics because the attention sink---which emerges during exactly this period---dominates the principal spectrum and masks the underlying alignment dynamics.
+Early training aligns hidden states with the unembedding matrix---a low-rank shortcut for the marginal token distribution~\citep{chang2022word,cagnetta2024distributional}.
+As high-frequency tokens saturate, the model departs toward full-rank, context-dependent representations.
+This transition is invisible in raw metrics because the attention sink dominates the principal spectrum during exactly this period.
 
 %======================================================================
 \section{Mechanism: Computationally Necessary, Informationally Empty}\label{sec:mechanism}
@@ -475,7 +394,7 @@ Zeroing position-0 hidden states causes perplexity to explode $8\times$--$107{,}
 
 \paragraph{Informational emptiness.}
 Linear probing shows $|\Delta| < 0.3\%$ at L0--L5.
-At the final layer, de-sinking \emph{improves} probing by $+12.1\%$ (Pythia-70M) and $+8.3\%$ (Pythia-160M)---the sink \emph{interferes} with linear readout when it aligns with the unembedding matrix (cosine~$0.97$--$0.99$ in Pythia; 0.26 in GPT-2, causing no interference).
+At the final layer, de-sinking \emph{improves} probing by $+12.1\%$ (Pythia-70M) and $+8.3\%$ (Pythia-160M)---the sink interferes with readout when aligned with the unembedding matrix (cosine $0.97$--$0.99$ in Pythia; $0.26$ in GPT-2).
 
 \begin{wrapfigure}[14]{r}{0.36\textwidth}
     \vspace{-1.2em}
@@ -500,52 +419,19 @@ With 5 random controls per layer, random removal changes probe accuracy by $< 0.
 PC1 of centered activations and normalized mean of position-0 yield nearly identical directions at sink-affected layers.
 
 \paragraph{PC1 is not the sink at all layers.}
-De-sinking targets layers where the spectral gap (ratio of first to second singular value) is large.
-In GPT-2, the gap exceeds $14\times$ at L2--L4 but drops to ${\sim}3\times$ at L10--L11; in Pythia-70M, L2 shows $4.6\times$ while L0--L1 show $1.2$--$1.5\times$.
-At low-gap layers, PC1 may represent content variance rather than the sink, and de-sinking has negligible effect (Table~\ref{tab:specificity}, confirming the method is self-limiting).
-We recommend applying de-sinking only at layers where the spectral gap exceeds ${\sim}3\times$.
+De-sinking targets layers with large spectral gaps (GPT-2: $>14\times$ at L2--L4; Pythia-70M: $4.6\times$ at L2).
+At low-gap layers, PC1 may represent content variance, and de-sinking has negligible effect (Appendix~\ref{app:specificity}).
+We recommend applying de-sinking only where the gap exceeds ${\sim}3\times$.
 
 %======================================================================
-\section{Scope and Limitations}\label{sec:limits}
+\section{Scope, Limitations, and Discussion}\label{sec:discussion}
 
-\paragraph{Engineering decisions are naturally robust.}
-Layer pruning: raw Block Influence gives PPL~31.2, de-sinked~33.8---raw is better because sink-heavy layers are genuinely more redundant.
-Cross-model CKA: de-sinked is \emph{higher}---similarity is genuine.
-CKA distillation: equivalent student performance.
-Contamination distorts \emph{absolute} values but preserves \emph{relative} layer ordering, explaining why engineering pipelines remain functional.
+\paragraph{Engineering robustness.}
+Contamination distorts \emph{absolute} values but preserves \emph{relative} layer ordering: raw Block Influence pruning (PPL~31.2) outperforms de-sinked (33.8); cross-model CKA is \emph{higher} after de-sinking; distillation is equivalent.
 
 \paragraph{Limitations.}
-Validated on GPT-2, Pythia (70M--1.4B full dynamics, 6.9B static), OLMo, and Qwen2.5 (GQA architecture); contamination confirmed across both GPT-NeoX and modern GQA designs.
-De-sinking is linear; higher-order effects are not captured.
-The alignment peak uses models up to 1B; validation at $\geq$7B remains future work.
-The inverted-U profile is from a 6-layer model trained from scratch.
-
-%======================================================================
-\section{Discussion}\label{sec:discussion}
-
-\paragraph{What we are and are not claiming.}
-The spectral metrics toolkit---PCA, CKA, RankMe, anisotropy---has become the standard language for discussing how transformers learn.
-We show this language has a systematic blind spot.
-We \emph{do not} dispute that attention sinks serve functional roles---preventing over-mixing~\citep{barbero2025why}, organizing information flow~\citep{queipodellano2025sinks}, and enabling distributed processing~\citep{zhang2025catch}.
-\citet{queipodellano2025sinks} prove massive activations necessarily collapse effective rank and interpret this as functional computation.
-Our claim is narrower and complementary: sinks may genuinely organize computation while simultaneously rendering the \emph{metrics researchers use to study that computation} unreliable.
-The distinction is between what the model does and what our measurements say about it.
-
-\paragraph{Recontextualizing Li et al.\ (2025).}
-\citet{li2025tracing} reported three geometric phases using standard metrics without de-sinking.
-Their own eigendirection ablation inadvertently supports our thesis: removing the top 50 directions barely hurts accuracy, meaning the dominant directions driving their measurements carry little task-relevant information.
-Concurrently, \citet{kulkarni2026disentangling} found effective rank reflects training hyperparameters more than performance.
-Together with our results, three independent lines of evidence now suggest the field's reliance on raw spectral metrics requires reexamination.
-
-\paragraph{The true story.}
-After de-sinking, transformer training dynamics are both simpler and richer than the phantom narrative.
-One genuine geometric transition (Phase~1) is followed by monotonic rank growth, overlaid with a shortcut-to-full-rank transition in unembedding alignment.
-Models progressively differentiate token contexts and expand representational bandwidth---the opposite of collapse.
-Understanding these true dynamics may require rebuilding the field's narrative of transformer training from de-sinked foundations.
-
-\paragraph{Recommendations.}
-We recommend reporting both raw and de-sinked values for PCA, CKA, RankMe, and anisotropy on transformer representations.
-De-sinking requires one additional line of code: \texttt{H\_ds = H - (H @ s) * s}.
+Validated on GPT-2, Pythia (70M--6.9B), OLMo, and Qwen2.5 (GQA); de-sinking is linear; alignment peak validated up to 1B; inverted-U profile from a 6-layer model.
+Sinks serve functional roles~\citep{barbero2025why,queipodellano2025sinks,zhang2025catch}, but render training-dynamics \emph{metrics} unreliable~\citep[cf.][]{li2025tracing,kulkarni2026disentangling}. After de-sinking, one genuine transition is followed by rank growth---the opposite of collapse. We recommend reporting both raw and de-sinked values: \texttt{H\_ds = H - (H @ s) * s}.
 
 %======================================================================
 \section*{Broader Impact Statement}
@@ -678,6 +564,77 @@ Pythia-70M & L3 & 64.7 & 40.22 & 40.27 & $+0.05$ & 40.24 \\
 \midrule
 Pythia-160M & L6 & 90.2 & 42.50 & 42.50 & $+0.00$ & --- \\
  & L12 & 1.0 & 38.78 & 47.08 & $\mathbf{+8.30}$ & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{PC1 Specificity}\label{app:specificity}
+
+\begin{table}[h]
+\centering
+\caption{De-sinking is specific to PC1. Removing PC2, PC3, or a random direction has negligible effect. Pythia-70M, step~143{,}000.}
+\small
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+& & \textbf{Original} & \textbf{Remove PC1} & \textbf{Remove PC2} & \textbf{Remove random} \\
+\midrule
+\multirow{2}{*}{L3} & $E_1$ & 0.279 & \textbf{0.048} & 0.304 & 0.273 \\
+& ER & 14.6 & \textbf{32.1} & 14.8 & 15.7 \\
+\midrule
+\multirow{2}{*}{L5} & $E_1$ & 0.529 & \textbf{0.142} & 0.567 & 0.529 \\
+& ER & 9.2 & \textbf{25.6} & 8.3 & 9.2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Manufacturing Phantom Phases}\label{app:manufacture}
+
+\begin{table}[h]
+\centering
+\caption{Injecting a synthetic sink into de-sinked step-512 hidden states (Pythia-70M L3) reproduces the entire phantom trajectory.}
+\small
+\begin{tabular}{@{}lcccccccc@{}}
+\toprule
+Injected $\alpha$ & 0 & 3 & 5 & 7 & 10 & 15 & 20 & 30 \\
+\midrule
+$E_1$ & 0.063 & 0.081 & 0.197 & 0.325 & 0.496 & 0.689 & 0.797 & 0.898 \\
+ER & 140 & 124 & 87 & 53 & 24 & 9 & 5 & 2.3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Alignment Peak and Per-Layer Departure}\label{app:inverted}
+
+\begin{table}[h]
+\centering
+\caption{The alignment peak is universal. All Pythia models peak at step~512; OLMo-2 1B peaks at step~1{,}000.}
+\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Model} & \textbf{Mid layer} & \textbf{Peak step} & \textbf{Peak lm100} & \textbf{Final lm100} & \textbf{Retained} \\
+\midrule
+Pythia-70M & L2 & 512 & 34.8\% & 6.4\% & 18\% \\
+Pythia-160M & L5 & 512 & 32.3\% & 16.4\% & 51\% \\
+Pythia-410M & L12 & 512 & 39.7\% & 12.9\% & 33\% \\
+OLMo-2 1B & --- & 1{,}000 & 19.8\% & 5.5\% & 28\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Per-layer departure: inverted-U. Middle layers depart most; first and last do not.}
+\small
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+\textbf{Layer} & \textbf{Dist.\ to output} & \textbf{Peak lm100} & \textbf{Final lm100} & \textbf{Departure} \\
+\midrule
+L0 & 5 & 29.4\% & 29.3\% & $1.00\times$ \\
+L1 & 4 & 45.8\% & 43.6\% & $1.05\times$ \\
+L2 & 3 & 62.2\% & 51.7\% & $\mathbf{1.21\times}$ \\
+L3 & 2 & 68.2\% & 60.3\% & $1.13\times$ \\
+L4 & 1 & 72.4\% & 69.9\% & $1.04\times$ \\
+L5 & 0 & 77.2\% & 75.8\% & $1.02\times$ \\
 \bottomrule
 \end{tabular}
 \end{table}
