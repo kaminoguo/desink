@@ -3,6 +3,11 @@ node_modules/
 package.json
 package-lock.json
 screenshot.js
+handoff/
+handoff.tar.gz
+phantom_phases_draft.pdf
+phantom_phases_v3_source.tar.gz
+phantom_phases_v5_source.tar.gz
 *.aux
 *.log
 *.out
@@ -10,6 +15,7 @@ screenshot.js
 *.fls
 *.fdb_latexmk
 *.xdv
-*.tar.gz
-phantom_phases_draft.pdf
-figs/*.png
+__pycache__/
+*.pyc
+.DS_Store
+paper/figs/*.png
