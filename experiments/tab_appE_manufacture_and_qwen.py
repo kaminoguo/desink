@@ -4,7 +4,7 @@ A: Synthetic Sink Injection (causal closure) — ~30 min
 B: Llama-3 / Qwen2.5 Static Contamination Audit — ~30 min
 """
 import os, json, torch, numpy as np, time
-os.environ["HF_ENDPOINT"] = os.environ.get("HF_ENDPOINT", "https://hf-mirror.com")
+os.environ.setdefault("HF_ENDPOINT", "https://huggingface.co")
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 from transformers import AutoModelForCausalLM, AutoTokenizer
 

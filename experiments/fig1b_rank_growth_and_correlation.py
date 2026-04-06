@@ -9,7 +9,7 @@ T2-2: Eigenvalue gap analysis
 Runs sequentially. Total ~4-5 GPU-hours on A100.
 """
 import os, sys, json, time
-os.environ["HF_ENDPOINT"] = os.environ.get("HF_ENDPOINT", "https://hf-mirror.com")
+os.environ.setdefault("HF_ENDPOINT", "https://huggingface.co")
 
 import torch
 import numpy as np

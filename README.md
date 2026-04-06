@@ -6,7 +6,7 @@ Code and paper for *Phantom Phases: How Attention Sinks Generate Fictitious Trai
 
 ## TL;DR
 
-Standard spectral metrics (PCA, effective rank, CKA, RankMe, anisotropy) applied to transformer hidden states are systematically contaminated by the attention sink. De-sinking---projecting out the sink direction---eliminates phantom "geometric phases," reverses apparent rank collapse to rank *growth*, and reveals a hidden shortcut-to-full-rank training transition. Distortions reach 721x in effective rank at 6.9B parameters.
+Standard spectral metrics (PCA, effective rank, CKA, RankMe, anisotropy) applied to transformer hidden states are systematically contaminated by the attention sink. De-sinking---projecting out the sink direction---eliminates phantom "geometric phases," reverses apparent rank collapse to rank *growth*, and reveals a hidden shortcut-to-full-rank training transition. Distortions reach 721\u00d7 in effective rank at 6.9B parameters.
 
 ## Quick Start
 

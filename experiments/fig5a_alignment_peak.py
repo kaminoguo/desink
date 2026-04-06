@@ -19,8 +19,8 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 import time, os, gc, json, shutil
 
 DEVICE = "cuda"
-os.environ["HF_HOME"] = "/workspace/.hf_home"
-LOG_DIR = "/workspace/experiments/logs"
+# os.environ["HF_HOME"] = ...  # set if needed
+LOG_DIR = os.path.join(os.path.dirname(__file__), "logs")
 os.makedirs(LOG_DIR, exist_ok=True)
 LOG_FILE = os.path.join(LOG_DIR, "exp77_output.log")
 
