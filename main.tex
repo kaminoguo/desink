@@ -657,4 +657,72 @@ L12 & 7.7 & 5.7 & 0.995 & $+8.3$ \\
 \end{tabular}
 \end{table}
 
+%======================================================================
+\newpage
+\section*{NeurIPS Paper Checklist}
+
+\begin{enumerate}[leftmargin=2em,itemsep=4pt]
+
+\item \textbf{Claims.}
+\textit{Do the main claims made in the abstract and introduction accurately reflect the paper's contributions and scope?}
+\answerYes{All claims (contamination, phantom phases, rank growth, alignment transition) are supported by theoretical proofs and multi-model empirical validation.}
+
+\item \textbf{Limitations.}
+\textit{Does the paper discuss the limitations of the work performed by the authors?}
+\answerYes{Section~9 discusses model family coverage, linearity of de-sinking, orthogonality assumption, and scale limitations of the alignment analysis.}
+
+\item \textbf{Theory assumptions and proofs.}
+\textit{For each theoretical result, does the paper provide the full set of assumptions and a complete (or complete reference to a) proof?}
+\answerYes{Theorem~2 states all assumptions explicitly. Full proof in Appendix~A.}
+
+\item \textbf{Experimental result reproducibility.}
+\textit{Does the paper fully disclose all the information needed to reproduce the main experimental results?}
+\answerYes{All models are public (GPT-2, Pythia, OLMo-2). De-sinking is defined precisely (Algorithm~1). Code will be released.}
+
+\item \textbf{Open access to data and code.}
+\textit{Does the paper provide open access to the data and code?}
+\answerYes{Code and data will be released upon publication.}
+
+\item \textbf{Experimental setting/details.}
+\textit{Does the paper specify all the training and test details?}
+\answerYes{Dataset sizes, model checkpoints, number of seeds, and evaluation procedures are specified throughout.}
+
+\item \textbf{Experiment statistical significance.}
+\textit{Does the paper report error bars suitably and correctly?}
+\answerYes{Probing experiments use 3 seeds with 5 random controls. ER--probe correlations report Spearman $\rho$ and $p$-values. The theoretical fit reports $R^2$.}
+
+\item \textbf{Experiments compute resources.}
+\textit{Does the paper provide sufficient information on the computer resources?}
+\answerYes{Total compute: ${\sim}$4 GPU-hours on a single A100.}
+
+\item \textbf{Code of ethics.}
+\textit{Does the research conform with the NeurIPS Code of Ethics?}
+\answerYes{}
+
+\item \textbf{Broader impacts.}
+\textit{Does the paper discuss both potential positive and negative societal impacts?}
+\answerYes{Broader Impact Statement included.}
+
+\item \textbf{Safeguards.}
+\textit{Does the paper describe safeguards for responsible release?}
+\answerNA{Measurement methodology paper; no new models or datasets are released.}
+
+\item \textbf{Licenses.}
+\textit{Are the creators of assets used properly credited?}
+\answerYes{All models and datasets are cited.}
+
+\item \textbf{New assets.}
+\textit{Are new assets well documented?}
+\answerNA{No new datasets or models.}
+
+\item \textbf{Crowdsourcing and human subjects.}
+\textit{Does the paper include full instructions given to participants?}
+\answerNA{No human subjects.}
+
+\item \textbf{IRB approvals.}
+\textit{Does the paper describe potential risks to study participants?}
+\answerNA{No human subjects.}
+
+\end{enumerate}
+
 \end{document}
