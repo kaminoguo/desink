@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>body{margin:0;padding:20px;background:#fff;font-family:-apple-system,system-ui,sans-serif;}</style>
+</head><body>
+<div style="display:flex;gap:8px;width:1400px;">
+<div style="flex:1;position:relative;height:380px;"><canvas id="m1"></canvas></div>
+<div style="flex:1;position:relative;height:380px;"><canvas id="m2"></canvas></div>
+<div style="flex:1;position:relative;height:380px;"><canvas id="m3"></canvas></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const grid='rgba(0,0,0,0.06)',txt='#6b6a65',txtP='#2c2c2a',RED='#c0392b',GRN='#27ae60';
+const gl=['L0','L1','L2','L3','L4','L5','L6','L7','L8','L9','L10','L11','L12'];
+const e1r=[22.1,17.4,51.6,93.6,92.9,92.3,91.0,89.1,86.1,82.0,75.5,65.6,82.2];
+const e1d=[21.9,18.3,14.9,11.5,8.6,6.8,5.4,4.2,3.2,3.3,4.2,5.2,48.5];
+const rogR=[9.4,25.3,60.2,93.7,93.1,92.4,91.2,89.4,86.4,82.5,76.2,66.6,82.4];
+const rogD=[9.6,25.3,22.0,14.6,10.2,8.0,6.4,5.3,4.8,5.5,7.2,7.9,51.1];
+const ovlp=[3.8,20.9,64.9,95.7,95.4,95.1,94.4,93.0,90.4,87.6,82.4,75.3,73.5];
+const pl=['L0','L1','L2','L3','L4','L5','L6'];
+const aniR=[0.071,0.318,0.330,0.338,0.396,0.381,0.982];
+const aniD=[0.004,0.077,0.236,0.184,0.252,0.279,0.133];
+
+new Chart(document.getElementById('m1'),{type:'bar',data:{labels:gl,datasets:[{label:'Raw',data:e1r,backgroundColor:RED+'cc',borderRadius:3,barPercentage:0.8,categoryPercentage:0.7},{label:'De-sinked',data:e1d,backgroundColor:GRN+'cc',borderRadius:3,barPercentage:0.8,categoryPercentage:0.7}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:12,font:{size:12},color:txt,usePointStyle:true}},title:{display:true,text:'(a)  E₁ share: GPT-2',font:{size:14,weight:600},color:txtP}},scales:{x:{grid:{display:false},ticks:{color:txt,font:{size:10}}},y:{grid:{color:grid},ticks:{color:txt,font:{size:11}},title:{display:true,text:'E₁ share (%)',color:txt,font:{size:12}}}}}});
+
+new Chart(document.getElementById('m2'),{type:'bar',data:{labels:gl,datasets:[{label:'Raw',data:rogR,backgroundColor:RED+'cc',borderRadius:3,barPercentage:0.8,categoryPercentage:0.7},{label:'De-sinked',data:rogD,backgroundColor:GRN+'cc',borderRadius:3,barPercentage:0.8,categoryPercentage:0.7},{label:'Sink overlap',data:ovlp,type:'line',borderColor:txtP,backgroundColor:'transparent',pointRadius:4,pointStyle:'triangle',borderWidth:1.8,pointBackgroundColor:txtP,tension:0.2,yAxisID:'y'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:12,font:{size:12},color:txt,usePointStyle:true}},title:{display:true,text:'(b)  Rogue dimensions: GPT-2',font:{size:14,weight:600},color:txtP}},scales:{x:{grid:{display:false},ticks:{color:txt,font:{size:10}}},y:{grid:{color:grid},ticks:{color:txt,font:{size:11}},title:{display:true,text:'Top-5 dims var. share (%)',color:txt,font:{size:12}}}}}});
+
+new Chart(document.getElementById('m3'),{type:'bar',data:{labels:pl,datasets:[{label:'Raw',data:aniR,backgroundColor:RED+'cc',borderRadius:3,barPercentage:0.8,categoryPercentage:0.7},{label:'De-sinked',data:aniD,backgroundColor:GRN+'cc',borderRadius:3,barPercentage:0.8,categoryPercentage:0.7}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:12,font:{size:12},color:txt,usePointStyle:true}},title:{display:true,text:'(c)  Anisotropy: Pythia-70M',font:{size:14,weight:600},color:txtP}},scales:{x:{grid:{display:false},ticks:{color:txt,font:{size:10}}},y:{grid:{color:grid},ticks:{color:txt,font:{size:11}},title:{display:true,text:'Avg. cosine similarity',color:txt,font:{size:12}},max:1.1}}}});
+</script></body></html>

@@ -1,0 +1,15 @@
+.env
+node_modules/
+package.json
+package-lock.json
+screenshot.js
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.xdv
+*.tar.gz
+phantom_phases_draft.pdf
+figs/*.png

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>body{margin:0;padding:20px;background:#fff;font-family:-apple-system,system-ui,sans-serif;}</style>
+</head><body>
+<div style="position:relative;width:560px;height:380px;"><canvas id="tl"></canvas></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const grid='rgba(0,0,0,0.06)',txt='#6b6a65',txtP='#2c2c2a',PRP='#8e44ad',ORG='#e67e22';
+const labels=['0','1','2','4','8','16','32','64','128','256','512','1k','2k','4k','8k','16k'];
+const probeR=[.241,.241,.241,.240,.240,.241,.251,.261,.269,.293,.323,.344,.339,.341,.345,.352];
+const probeD=[.239,.239,.238,.239,.239,.239,.251,.252,.260,.289,.320,.329,.333,.340,.342,.344];
+const norm=[1.24,1.24,1.24,1.24,1.24,1.21,1.06,1.07,1.14,1.21,1.24,1.24,1.95,3.28,4.68,6.33];
+
+new Chart(document.getElementById('tl'),{type:'line',data:{labels,datasets:[{label:'Probe (raw)',data:probeR,borderColor:PRP,backgroundColor:PRP+'22',pointRadius:4,pointBackgroundColor:PRP,borderWidth:2,tension:0.2,yAxisID:'y'},{label:'Probe (de-sinked)',data:probeD,borderColor:PRP+'88',backgroundColor:'transparent',pointRadius:3,pointBackgroundColor:PRP+'88',borderWidth:1.5,borderDash:[5,3],tension:0.2,yAxisID:'y',pointStyle:'rect'},{label:'Sink α',data:norm,borderColor:ORG,backgroundColor:ORG+'18',pointRadius:0,borderWidth:1.8,tension:0.3,fill:true,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:12,font:{size:12},color:txt,usePointStyle:true}},title:{display:true,text:'Capability acquisition vs. sink growth (L3)',font:{size:14,weight:600},color:txtP}},scales:{x:{grid:{color:grid},ticks:{color:txt,font:{size:10},maxRotation:45},title:{display:true,text:'Training step',color:txt,font:{size:12}}},y:{position:'left',grid:{color:grid},ticks:{color:PRP,font:{size:11}},title:{display:true,text:'Probe accuracy',color:PRP,font:{size:12}},min:0.22,max:0.38},y1:{position:'right',grid:{drawOnChartArea:false},ticks:{color:ORG,font:{size:11}},title:{display:true,text:'Norm ratio α',color:ORG,font:{size:12}},min:0,max:8}}}});
+</script></body></html>
