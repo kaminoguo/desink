@@ -445,7 +445,7 @@ We see no direct negative societal implications.
 All models are publicly available (GPT-2, Pythia, OLMo-2).
 De-sinking requires $O(nd)$ computation.
 Code is available at \url{https://github.com/kaminoguo/desink}.
-Total compute: ${\sim}$4 GPU-hours on a single A100.
+Total compute: ${\sim}$10 GPU-hours on a single A100.
 
 %======================================================================
 \bibliographystyle{plainnat}
@@ -546,6 +546,34 @@ Thus $E_1 = \kappa\alpha^2/(\kappa\alpha^2 + 1)$ where $\kappa = \sigma_s^2/V_c$
 When orthogonality is approximate, $\mathbf{s}^\top\boldsymbol{\Sigma}_c\mathbf{s} = E_1^{c,\parallel}V_c > 0$, yielding~\eqref{eq:e1}.
 $E_1^{\text{raw}} \to 1$ as $\alpha \to \infty$. \qed
 \end{proof}
+
+\paragraph{Empirical verification of near-orthogonality.}
+The assumption $\mathbf{C}\mathbf{s} \approx \mathbf{0}$ holds exactly by construction, since $\mathbf{s}$ is defined as PC1 of the centered matrix.
+The substantive question is whether the residual content matrix $\mathbf{C}$ has low variance concentration.
+We verify this across three model scales: $E_1(\mathbf{C})$ remains below 0.07 at all checkpoints (Table~\ref{tab:orthogonality}), confirming the residual spectrum is diffuse and Theorem~\ref{thm:e1}'s decomposition is well-conditioned.
+
+\begin{table}[h]
+\centering
+\caption{Orthogonality verification. $E_1(\mathbf{C})$: leading eigenvalue share of content matrix after de-sinking. p0-conc: fraction of sink projection concentrated at position~0.}
+\label{tab:orthogonality}
+\small
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+\textbf{Model} & \textbf{Step} & $E_1(\mathbf{H})$ & $E_1(\mathbf{C})$ & \textbf{p0-conc} & \textbf{Sink $\alpha$} \\
+\midrule
+Pythia-70M L3 & 512 & 0.077 & 0.060 & 0.3\% & 1.2$\times$ \\
+ & 4{,}000 & 0.281 & 0.037 & 14.4\% & 3.3$\times$ \\
+ & 64{,}000 & 0.671 & 0.056 & 31.1\% & 10.0$\times$ \\
+ & 143{,}000 & 0.629 & 0.071 & 32.5\% & 9.6$\times$ \\
+\midrule
+Pythia-160M L5 & 512 & 0.061 & 0.053 & 0.2\% & 1.1$\times$ \\
+ & 143{,}000 & 0.829 & 0.052 & 43.5\% & 18.5$\times$ \\
+\midrule
+Pythia-1.4B L12 & 512 & 0.083 & 0.068 & 0.04\% & 0.8$\times$ \\
+ & 143{,}000 & 0.894 & 0.033 & 49.8\% & 20.3$\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Extended Probing Results}\label{app:probing}
 
@@ -711,7 +739,7 @@ L12 & 7.7 & 5.7 & 0.995 & $+8.3$ \\
 
 \item \textbf{Experiments compute resources.}
 \textit{Does the paper provide sufficient information on the computer resources?}
-\answerYes{Total compute: ${\sim}$4 GPU-hours on a single A100.}
+\answerYes{Total compute: ${\sim}$10 GPU-hours on a single A100.}
 
 \item \textbf{Code of ethics.}
 \textit{Does the research conform with the NeurIPS Code of Ethics?}

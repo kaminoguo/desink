@@ -2,7 +2,7 @@
 
 Code and paper for *Phantom Phases: How Attention Sinks Generate Fictitious Training Dynamics*.
 
-[[Paper]](paper/main.pdf)
+[[Paper]](paper/main_arxiv.pdf)
 
 ## TL;DR
 
@@ -54,7 +54,8 @@ experiments/
   tab_appD_sink_geometry.py        # Sink-unembedding geometry
   app_negative_*.py                # Negative results (pruning, LoRA, distillation)
 paper/
-  main.tex                         # NeurIPS 2026 submission
+  main_arxiv.tex                   # arXiv version (authored)
+  main_neurips.tex                 # NeurIPS submission (anonymous)
   neurips_2026.sty
   figs/                            # All figures (PDF vector graphics)
 ```
