@@ -1,3 +1,5 @@
+"""Figure 1(c): Theorem 1 fit on Pythia-70M (R^2 = 0.978 with one parameter)."""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit

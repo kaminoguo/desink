@@ -1,16 +1,6 @@
-"""
-Paper 1 Exp A: De-Sinked Training Trajectory
-===============================================
-For each of 19 Pythia-70M checkpoints, compute raw and de-sinked:
-  - E1 share (PC1 explained variance ratio)
-  - Effective Rank (ER)
-  - Anisotropy (average cosine similarity)
+"""Figure 1(a,b): Phantom phases in transformer training.
+Compute raw and de-sinked spectral metrics (E1, ER, anisotropy) across 19 Pythia-70M training checkpoints."""
 
-Question: Do Li et al.'s "geometric phases" survive de-sinking?
-If Phase 2-3 disappear → phases are sink artifacts (our claim).
-
-Also compute de-sinked RankMe for direct comparison with Li et al.
-"""
 import torch
 import numpy as np
 import json

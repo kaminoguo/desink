@@ -1,11 +1,5 @@
-"""
-Paper 1 Exp H: Cross-Model De-sinked CKA
-==========================================
-If "different models converge to similar representations" (Platonic Hypothesis),
-how much of that similarity is shared sink structure?
+"""Appendix C: Cross-model CKA (GPT-2 vs Pythia-70M) raw vs de-sinked."""
 
-Compare GPT-2 vs Pythia-70M cross-model CKA, raw vs de-sinked.
-"""
 import torch
 import numpy as np
 import json

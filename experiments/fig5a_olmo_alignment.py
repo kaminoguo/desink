@@ -1,15 +1,4 @@
-#!/usr/bin/env python3
-"""
-Exp 106: Non-Pythia Alignment Dynamics (OLMo-2 1B)
-====================================================
-Critical test: is the step 512 alignment peak + departure Pythia-specific?
-
-OLMo-2 1B: different architecture (Llama-like), different data (Dolma), different training.
-Checkpoints every 1000 steps from step 0 to step 37000.
-
-If alignment peak + departure exists in OLMo → UNIVERSAL phenomenon
-If not → Pythia-specific (data ordering / architecture artifact)
-"""
+"""Figure 5(a): OLMo-2 1B alignment-peak validation across architectures."""
 
 import torch
 import numpy as np

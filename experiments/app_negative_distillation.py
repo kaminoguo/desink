@@ -1,13 +1,5 @@
-"""
-Paper 1 Exp I: CKA Distillation
-=================================
-Yu et al. found "layer matching doesn't matter" in distillation.
-Test: does de-sinked CKA make layer matching matter again?
+"""Appendix C: CKA-based distillation layer matching (GPT-2 to 6-layer student)."""
 
-Teacher: GPT-2 (12 layers)
-Student: GPT-2 distilled (6 layers, trained from scratch)
-Compare: random matching vs raw CKA matching vs de-sinked CKA matching.
-"""
 import torch
 import numpy as np
 import json

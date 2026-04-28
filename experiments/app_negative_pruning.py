@@ -1,12 +1,5 @@
-"""
-Paper 1 Exp F: De-sinked Layer Pruning
-========================================
-Prove sink distortion causes wrong layer pruning decisions.
+"""Appendix C: Layer pruning via Block Influence score (raw vs de-sinked) on Pythia-6.9B."""
 
-1. Compute Block Influence (BI) score per layer: BI(i) = 1 - cos(mean(X_i), mean(X_{i+1}))
-2. Compute de-sinked BI score
-3. Compare rankings → prune 25% layers by each ranking → measure PPL
-"""
 import torch
 import numpy as np
 import json

@@ -1,18 +1,4 @@
-#!/usr/bin/env python3
-"""
-Exp 95: Position-0 Matched-Random PPL Control
-===============================================
-Exp91: removing carrier from position-0 → up to 70x PPL per layer.
-But is carrier direction special, or does ANY same-size perturbation to position-0 break it?
-
-For each layer:
-  1. Sink-only carrier ablation (remove carrier proj from pos-0 in residual)
-  2. Sink-only matched-random ablation (remove random dir, same magnitude)
-  3. Compare PPL
-
-If carrier >> random: carrier direction encodes specific KEY info.
-If carrier ≈ random: position-0 is just fragile to any perturbation.
-"""
+"""Section 8: Position-0 carrier vs matched-random direction control on Pythia-410M."""
 
 import torch
 import numpy as np

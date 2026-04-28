@@ -1,13 +1,9 @@
-"""
-Paper 1 — All Tier 1 + Tier 2 experiments in one script.
-T1-1: Pythia-160M 20-checkpoint training dynamics (all layers)
-T1-2: OLMo-2 1B checkpoint E1/ER
-T1-3: Pythia-160M ER-Probe correlation
-T2-1: All-but-the-Top vs De-sinking comparison
-T2-2: Eigenvalue gap analysis
+"""Section 5 + Section 8 supporting experiments.
+- Pythia-160M / 1.4B / OLMo-2 1B: 20-checkpoint training dynamics (rank growth).
+- ER vs probing-accuracy correlation (Spearman rho).
+- All-but-the-Top vs de-sinking comparison (controls).
+- Eigenvalue spectral gap analysis (controls)."""
 
-Runs sequentially. Total ~4-5 GPU-hours on A100.
-"""
 import os, sys, json, time
 os.environ.setdefault("HF_ENDPOINT", "https://huggingface.co")
 

@@ -1,23 +1,4 @@
-"""
-Exp C1: Final Layer Decomposition — What Does Non-Sink Structure Encode?
-=========================================================================
-Paper 1 shows sink artifacts dominate PCA. After de-sink, what remains?
-
-GPT-2 L12: E1 drops from 82.2% to 48.5% after de-sink. That 48.5% is still
-enormous — there's a strong non-sink dominant direction. What is it?
-
-This experiment:
-1. Compute de-sinked PCA at every layer (focus on final layer)
-2. Find the dominant non-sink direction (de-sinked PC1)
-3. Compute SVD of lm_head (unembedding matrix)
-4. Measure alignment: cosine similarity between de-sinked PC1 and lm_head
-   top singular vectors
-5. Interpret: if aligned → the residual structure directly serves prediction;
-   if not → some other phenomenon (e.g., LayerNorm coupling)
-
-Models: GPT-2, Pythia-70M, Pythia-160M
-Data: OpenWebText (200K tokens)
-"""
+"""Appendix D: Sink-unembedding geometry analysis (final-layer non-sink structure)."""
 
 import torch
 import numpy as np

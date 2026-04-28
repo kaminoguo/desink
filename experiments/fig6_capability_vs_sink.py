@@ -1,14 +1,5 @@
-"""
-Paper 1 Exp B: Sink Emergence vs Capability Emergence Timeline
-=================================================================
-Align three timelines across Pythia-70M training checkpoints:
-1. Sink strength (from B4 data: norm_ratio, E1_ratio, attn_to_p0)
-2. De-sinked metric trajectory (from Exp A)
-3. Probing accuracy (next-token prediction) at each checkpoint
+"""Figure 6: Capability emergence vs sink emergence timeline (Pythia-70M)."""
 
-Question: Do raw metric "phase transitions" align with sink emergence
-or with genuine capability acquisition?
-"""
 import torch
 import numpy as np
 import json

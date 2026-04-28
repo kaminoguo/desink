@@ -1,12 +1,5 @@
-"""
-Paper 1 A1-A4: Scale Validation
-=================================
-Replicate core de-sink findings on larger models.
-Confirm geometric phases are sink artifacts at scale.
+"""Table 3 + Figure 4: Scale validation on Pythia-6.9B and GPT-2-XL."""
 
-Models: Pythia-6.9B, GPT-2-XL (1.5B)
-Metrics: E1, ER, RankMe raw vs de-sinked at key layers
-"""
 import torch
 import numpy as np
 import json

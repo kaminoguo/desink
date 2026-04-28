@@ -1,24 +1,4 @@
-"""
-Exp C2: Systematic Probing — De-Sink as a Prescriptive Tool
-=============================================================
-B3 showed de-sink improves probing at L6 (final) by +12.1% on Pythia-70M.
-This was one model, one task, one dataset.
-
-C2 scales this to:
-  - Models: GPT-2, Pythia-70M, Pythia-160M
-  - Task: next-token prediction probing (top-500 tokens)
-  - Data: WikiText-2 (500 passages, max_len=128)
-  - Seeds: 3 per condition
-  - Controls: 5 random directions per layer
-
-Key question: Is de-sink probing improvement systematic across models?
-If yes → prescriptive claim: "de-sink before probing" as a methodology recommendation.
-If no → the B3 result is model-specific, not generalizable.
-
-Also measures: what fraction of total variance is captured by sink direction
-at each layer, to show the sink is not just a PCA artifact but actively
-interferes with linear readout.
-"""
+"""Appendix B: Linear probing across GPT-2, Pythia-70M, Pythia-160M."""
 
 import torch
 import torch.nn as nn

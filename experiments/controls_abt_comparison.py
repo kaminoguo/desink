@@ -1,4 +1,5 @@
-"""T2-1: All-but-the-Top vs De-sinking comparison. Standalone."""
+"""Section 8: All-but-the-Top vs de-sinking comparison."""
+
 import os, json, torch, numpy as np
 device = torch.device("cuda")
 from transformers import AutoModelForCausalLM, AutoTokenizer

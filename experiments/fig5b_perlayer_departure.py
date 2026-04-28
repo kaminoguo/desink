@@ -1,15 +1,4 @@
-#!/usr/bin/env python3
-"""
-Exp 116: Per-Layer Departure Profile
-======================================
-One 6L model, measure alignment at ALL 6 layers simultaneously.
-Resolves exp115 confound: is departure just "distance from lm_head"?
-
-If departure monotonically increases with distance from lm_head:
-  → trivial positional effect, exp115 conclusion invalid
-If not monotonic (e.g. middle layers depart most):
-  → non-trivial layer dynamics at play
-"""
+"""Figure 5(b): Per-layer departure profile (inverted-U) measured on a 6-layer model."""
 
 import torch
 import torch.nn as nn

@@ -1,12 +1,5 @@
-"""
-Paper 1 Exp C: De-Sinked CKA Heatmap
-=======================================
-Compute layer×layer CKA matrix with and without de-sinking.
-A5 showed aggregate CKA barely changes (0.640→0.644 for GPT-2).
-But the heatmap might show local changes in specific layer pairs.
+"""Figure 3: Layer-by-layer CKA heatmaps, raw vs de-sinked, on GPT-2 and Pythia-70M."""
 
-Models: GPT-2 and Pythia-70M.
-"""
 import torch
 import numpy as np
 import json

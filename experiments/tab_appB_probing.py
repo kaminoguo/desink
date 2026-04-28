@@ -1,12 +1,4 @@
-"""
-Exp B3 Large-Scale: Probing Corruption Test (verification run)
-
-Same as B3 but with:
-  - Real text from WikiText-2 (not hardcoded sentences)
-  - ~10x more data (longer sequences, more texts)
-  - 3 random seeds, report mean ± std
-  - All layers analyzed
-"""
+"""Appendix B: Linear probing with vs without de-sinking (large-scale verification on Pythia-70M)."""
 
 import torch
 import torch.nn as nn

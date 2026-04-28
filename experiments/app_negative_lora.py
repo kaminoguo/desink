@@ -1,11 +1,5 @@
-"""
-Paper 1 Exp G: LoRA Layer Selection via De-sinked CKA
-=======================================================
-If sink-inflated CKA makes middle layers look identical,
-LoRA adapter placement based on CKA will be suboptimal.
+"""Appendix C: LoRA layer selection via raw vs de-sinked CKA on Pythia-1B."""
 
-Compare: raw CKA layer selection vs de-sinked CKA → LoRA fine-tuning accuracy.
-"""
 import torch
 import numpy as np
 import json

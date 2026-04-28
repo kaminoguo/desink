@@ -1,16 +1,4 @@
-"""
-Exp A5: De-Sink Impact on Published Analysis Methods
-
-Reproduces core metrics from 5 papers, with and without de-sinking:
-  1. Ethayarajh 2019: Anisotropy (avg pairwise cosine similarity)
-  2. Timkey & van Schijndel 2021: Rogue dimensions (per-dim variance)
-  3. Godey et al. 2024: Anisotropy decomposition
-  4. Li et al. 2025: RankMe (effective rank) + eigenspectrum alpha
-  5. Raghu et al. 2021: Cross-layer CKA
-
-Models: Pythia-70M, GPT-2
-Data: 200K tokens from OpenWebText
-"""
+"""Table 2: Contamination audit on five published metrics. Reproduces E1, rogue dimensions, RankMe, anisotropy, and CKA on GPT-2 and Pythia-70M (200K OpenWebText tokens), with raw vs de-sinked values."""
 
 import torch
 import torch.nn.functional as F

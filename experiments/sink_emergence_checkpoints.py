@@ -1,20 +1,4 @@
-"""
-Exp B4 v3: Sink Formation Dynamics via Pythia-70M Training Checkpoints
-
-Instead of training from scratch (which failed to form sinks due to insufficient
-compute), we use Pythia-70M's publicly available training checkpoints.
-
-Pythia provides checkpoints at steps: 1, 2, 4, 8, 16, 32, 64, 128, 256, 512,
-1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 143000.
-
-For each checkpoint:
-  - Compute E1 ratio (with/without pos-0) = PCA sink detection
-  - Compute pos-0 norm ratio = direct sink measurement
-  - Compute attention to pos-0 = attention sink
-  - Compute lm_head alignment
-
-This shows exactly when and how sink artifacts emerge during training.
-"""
+"""Section 7 supporting data: sink formation dynamics across Pythia-70M training checkpoints."""
 
 import torch
 import torch.nn.functional as F

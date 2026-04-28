@@ -1,8 +1,5 @@
-"""
-Paper 1 Final Experiments:
-A: Synthetic Sink Injection (causal closure) — ~30 min
-B: Llama-3 / Qwen2.5 Static Contamination Audit — ~30 min
-"""
+"""Section 3.4 and Table 3: Synthetic sink injection (causal sufficiency) and Llama-3 / Qwen2.5 GQA contamination audit."""
+
 import os, json, torch, numpy as np, time
 os.environ.setdefault("HF_ENDPOINT", "https://huggingface.co")
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

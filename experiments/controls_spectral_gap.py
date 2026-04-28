@@ -1,4 +1,5 @@
-"""T2-2: Eigenvalue gap analysis. Standalone."""
+"""Section 8: Eigenvalue spectral gap analysis (justifies removing exactly one direction)."""
+
 import os, json, torch
 import numpy as np
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

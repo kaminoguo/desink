@@ -1,17 +1,4 @@
-#!/usr/bin/env python3
-"""
-Exp 77: lm_head Spectral Evolution vs Carrier Direction
-=========================================================
-Is sub-random sem=0.53 because lm_head actively rotates away from carrier,
-or because carrier was always in lm_head null space?
-
-For ~20 key checkpoints:
-  1. L12 top-1 PC (carrier direction)
-  2. lm_head SVD top-20 left singular vectors
-  3. max cos(carrier, u_i) — best alignment
-  4. sum cos²(carrier, u_i) — energy in lm_head top-20 subspace
-  5. Same for random baseline
-"""
+"""Figure 5(a): Pythia alignment-peak experiments (lm100 alignment evolution across training)."""
 
 import torch
 import numpy as np

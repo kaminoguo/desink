@@ -1,93 +1,90 @@
-# De-Sinking: Removing the Attention Sink Artifact from Transformer Representations
+# De-Sinking
 
-Code and paper for *Phantom Phases: How Attention Sinks Generate Fictitious Training Dynamics*.
+> *Phantom Phases: How Attention Sinks Generate Fictitious Training Dynamics*
+> Yuchen Liu, HKUST · NeurIPS 2026 submission
 
-[[Paper]](paper/main_arxiv.pdf)
+[[Paper (arXiv version)]](paper/main_arxiv.pdf)
 
-## TL;DR
+Standard spectral metrics applied to transformer hidden states — PCA variance share ($E_1$), effective rank, RankMe, CKA, anisotropy — are systematically contaminated by the *attention sink*. The "geometric phases" and "rank collapse" widely reported in transformer training are largely measurement artifacts. De-sinking, a single rank-1 projection, removes the contamination and reveals a different story: monotonic rank *growth*, not collapse, and a previously invisible shortcut-to-full-rank transition. Distortions reach 721× in effective rank at 6.9B parameters.
 
-Standard spectral metrics (PCA, effective rank, CKA, RankMe, anisotropy) applied to transformer hidden states are systematically contaminated by the attention sink. De-sinking---projecting out the sink direction---eliminates phantom "geometric phases," reverses apparent rank collapse to rank *growth*, and reveals a hidden shortcut-to-full-rank training transition. Distortions reach 721\u00d7 in effective rank at 6.9B parameters.
-
-## Quick Start
+## Quick start
 
 ```python
-import torch
 from desink import desink, spectral_metrics
 
-# H: hidden states from any transformer layer, shape (n_tokens, d_model)
+# H: hidden states at any layer, shape (n_tokens, d_model)
 H_ds = desink(H)
 
-# Or equivalently, in one line:
-H_ds = H - (H @ s) * s  # where s is the first right singular vector of centered H
+# One line, no library needed:
+# H_ds = H - (H @ s)[:, None] * s  where s = PC1 of centered H
 
-# Compare metrics before and after
 print(spectral_metrics(H))     # raw (contaminated)
 print(spectral_metrics(H_ds))  # de-sinked (corrected)
 ```
-
-## Installation
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Repository Structure
+## Repository layout
 
 ```
-desink/
-  core.py                          # De-sinking implementation + spectral metrics
-experiments/
-  fig1_training_trajectory.py      # Fig 1a,b: E1/ER across 20 Pythia-70M checkpoints
-  fig1c_theorem_fit.py             # Fig 1c: Theorem 1 fit (R^2 = 0.978)
-  fig1b_rank_growth_and_correlation.py  # Rank growth + ER-probe anti-correlation
-  tab2_contamination_audit.py      # Table 2: 5 metrics x 2 models
-  fig3_cka_heatmap.py              # Fig 3: Raw vs de-sinked CKA heatmaps
-  tab3_fig4_scale_validation.py    # Table 3 + Fig 4: 70M to 6.9B scale
-  fig5a_alignment_peak.py          # Fig 5a: Shortcut-to-full-rank transition
-  fig5a_olmo_alignment.py          # Fig 5a: OLMo-2 1B validation
-  fig5b_perlayer_departure.py      # Fig 5b: Inverted-U departure profile
-  fig6_capability_vs_sink.py       # Fig 6: Probe accuracy vs sink strength
-  tab_appE_manufacture_and_qwen.py # Synthetic sink injection + Qwen2.5 GQA
-  sink_emergence_checkpoints.py    # Sink formation across training
-  controls_*.py                    # Random direction, ABT comparison, spectral gap
-  tab_appB_*.py                    # Extended probing results
-  tab_appD_sink_geometry.py        # Sink-unembedding geometry
-  app_negative_*.py                # Negative results (pruning, LoRA, distillation)
-paper/
-  main_arxiv.tex                   # arXiv version (authored)
-  main_neurips.tex                 # NeurIPS submission (anonymous)
-  neurips_2026.sty
-  figs/                            # All figures (PDF vector graphics)
+desink/         core.py            de-sinking + spectral metrics (~80 LOC)
+experiments/                       reproducibility scripts, one per paper artifact
+paper/          main_arxiv.tex     arXiv version (authored)
+                main_neurips.tex   NeurIPS submission (anonymous)
+                neurips_2026.sty
+                figs/              vector PDF figures
 ```
 
-## Reproducing Results
+## Experiment ↔ paper map
 
-Each experiment script is standalone. Example:
+Each script is standalone (no shared state, no inter-script dependencies).
+
+| Script | Paper artifact |
+|---|---|
+| `fig1_training_trajectory.py`            | Figure 1(a,b): E₁ / ER on 20 Pythia-70M checkpoints |
+| `fig1c_theorem_fit.py`                   | Figure 1(c): Theorem 1 fit, R² = 0.978 |
+| `fig1b_rank_growth_and_correlation.py`   | §5: Pythia-160M / 1.4B / OLMo-2 1B dynamics + ER-probe correlation |
+| `tab2_contamination_audit.py`            | Table 2: contamination across 5 published metrics |
+| `fig3_cka_heatmap.py`                    | Figure 3: layer×layer CKA heatmaps |
+| `tab3_fig4_scale_validation.py`          | Table 3 + Figure 4: scale validation, 70M → 6.9B |
+| `tab_appE_manufacture_and_qwen.py`       | §3.4 synthetic sink injection; Qwen2.5 GQA audit |
+| `fig5a_alignment_peak.py`                | Figure 5(a): Pythia alignment peak |
+| `fig5a_olmo_alignment.py`                | Figure 5(a): OLMo-2 1B validation |
+| `fig5b_perlayer_departure.py`            | Figure 5(b): inverted-U per-layer departure |
+| `fig6_capability_vs_sink.py`             | Figure 6: capability vs sink growth |
+| `sink_emergence_checkpoints.py`          | §7: sink formation across training |
+| `controls_random_direction.py`           | §8: matched-random direction control |
+| `controls_abt_comparison.py`             | §8: All-but-the-Top vs de-sinking |
+| `controls_spectral_gap.py`               | §8: eigenvalue gap analysis |
+| `tab_appB_probing.py`                    | Appendix B: probing on Pythia-70M (large-scale) |
+| `tab_appB_probing_multi.py`              | Appendix B: probing across 3 models |
+| `tab_appD_sink_geometry.py`              | Appendix D: sink ↔ unembedding geometry |
+| `app_negative_pruning.py`                | Appendix C: layer pruning (negative result) |
+| `app_negative_lora.py`                   | Appendix C: LoRA layer selection (inconclusive) |
+| `app_negative_cross_cka.py`              | Appendix C: cross-model CKA |
+| `app_negative_distillation.py`           | Appendix C: distillation layer matching |
+
+## Reproducing results
 
 ```bash
-# Figure 1: Phantom phases in Pythia-70M
-python experiments/fig1_training_trajectory.py
-
-# Table 2: Contamination audit across 5 metrics
-python experiments/tab2_contamination_audit.py
-
-# Scale validation (requires ~40GB GPU memory for Pythia-6.9B)
-python experiments/tab3_fig4_scale_validation.py
+python experiments/fig1_training_trajectory.py    # ~30 min on A100
+python experiments/tab2_contamination_audit.py    # ~20 min
+python experiments/tab3_fig4_scale_validation.py  # needs ~40 GB GPU for Pythia-6.9B
 ```
 
-All experiments use publicly available models from Hugging Face (GPT-2, Pythia, OLMo-2, Qwen2.5). Total compute: ~4 GPU-hours on a single A100.
+All models are public Hugging Face checkpoints (GPT-2, Pythia, OLMo-2, Qwen2.5). Total compute for the full paper: ~10 GPU-hours on a single A100.
 
 ## Citation
 
 ```bibtex
 @inproceedings{liu2026phantom,
-  title={Phantom Phases: How Attention Sinks Generate Fictitious Training Dynamics},
-  author={Liu, Yuchen},
-  booktitle={Advances in Neural Information Processing Systems},
-  year={2026}
+  title  = {Phantom Phases: How Attention Sinks Generate Fictitious Training Dynamics},
+  author = {Liu, Yuchen},
+  booktitle = {Advances in Neural Information Processing Systems},
+  year   = {2026}
 }
 ```
 
-## License
-
-MIT
+MIT license.
