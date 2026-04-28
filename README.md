@@ -1,9 +1,5 @@
 # De-Sinking
 
-<p align="center">
-  <img src="assets/hero.png" alt="Phantom Phases: five metrics, one artifact" width="640">
-</p>
-
 > *Phantom Phases: How Attention Sinks Generate Fictitious Training Dynamics*
 > Yuchen Liu, HKUST · NeurIPS 2026 submission
 

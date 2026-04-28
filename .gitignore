@@ -19,5 +19,7 @@ __pycache__/
 *.pyc
 .DS_Store
 paper/figs/*.png
+!paper/figs/fig0_overview.png
 *.zip
 .claude/
+assets/

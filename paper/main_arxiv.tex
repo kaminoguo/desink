@@ -71,6 +71,13 @@ Moreover, de-sinking uncovers a previously invisible phenomenon: hidden-state al
 We quantify contamination across five metrics, models from 70M to 6.9B parameters, and both GPT-NeoX and GQA architectures, finding distortions up to $721\times$.
 \end{abstract}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.58\textwidth]{figs/fig0_overview.png}
+\caption{\textbf{Five metrics, one artifact.} Five spectral metrics commonly used to study transformer training---$E_1$, effective rank, RankMe, CKA, and anisotropy---all track the same underlying signal: the attention sink, an input-invariant high-variance direction $\mathbf{s}$ that emerges during training. Removing $\mathbf{s}$ via the rank-1 projection $\mathbf{H} - (\mathbf{H}\mathbf{s})\mathbf{s}^\top$ eliminates phantom phase transitions and reveals the true training dynamics: rank \emph{grows}, not collapses.}
+\label{fig:overview}
+\end{figure}
+
 %======================================================================
 \section{Introduction}\label{sec:intro}
 
