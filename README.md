@@ -1,9 +1,9 @@
 # De-Sinking
 
 > *Phantom Phases: How Attention Sinks Generate Fictitious Training Dynamics*
-> Yuchen Liu, HKUST · NeurIPS 2026 submission
+> NeurIPS 2026 submission · anonymous repository
 
-[[Paper (arXiv version)]](paper/main_arxiv.pdf)
+[[Paper]](paper/main.pdf)
 
 Standard spectral metrics applied to transformer hidden states — PCA variance share ($E_1$), effective rank, RankMe, CKA, anisotropy — are systematically contaminated by the *attention sink*. The "geometric phases" and "rank collapse" widely reported in transformer training are largely measurement artifacts. De-sinking, a single rank-1 projection, removes the contamination and reveals a different story: monotonic rank *growth*, not collapse, and a previously invisible shortcut-to-full-rank transition. Distortions reach 721× in effective rank at 6.9B parameters.
 
@@ -31,8 +31,7 @@ pip install -r requirements.txt
 ```
 desink/         core.py            de-sinking + spectral metrics (~80 LOC)
 experiments/                       reproducibility scripts, one per paper artifact
-paper/          main_arxiv.tex     arXiv version (authored)
-                main_neurips.tex   NeurIPS submission (anonymous)
+paper/          main.tex           NeurIPS 2026 submission
                 neurips_2026.sty
                 figs/              vector PDF figures
 ```
@@ -75,16 +74,5 @@ python experiments/tab3_fig4_scale_validation.py  # needs ~40 GB GPU for Pythia-
 ```
 
 All models are public Hugging Face checkpoints (GPT-2, Pythia, OLMo-2, Qwen2.5). Total compute for the full paper: ~10 GPU-hours on a single A100.
-
-## Citation
-
-```bibtex
-@inproceedings{liu2026phantom,
-  title  = {Phantom Phases: How Attention Sinks Generate Fictitious Training Dynamics},
-  author = {Liu, Yuchen},
-  booktitle = {Advances in Neural Information Processing Systems},
-  year   = {2026}
-}
-```
 
 MIT license.
