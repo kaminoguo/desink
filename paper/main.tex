@@ -620,9 +620,12 @@ Pythia-160M & L6 & 90.2 & 42.50 & 42.50 & $+0.00$ & --- \\
 
 \section{Manufacturing Phantom Phases}\label{app:manufacture}
 
-\begin{table}[h]
+We supplement \S\ref{sec:manufacture} with the full sweep of injected sink strengths. Starting from de-sinked Pythia-70M hidden states at step~512 (where the empirical sink has not yet formed), we add a rank-1 perturbation $\alpha\,\mathbf{e}_0\mathbf{s}^\top$ with controlled $\alpha$ and re-measure $E_1$ and ER (Table~\ref{tab:manufacture}).
+
+\begin{table}[!htbp]
 \centering
 \caption{Injecting a synthetic sink into de-sinked step-512 hidden states (Pythia-70M L3) reproduces the entire phantom trajectory.}
+\label{tab:manufacture}
 \small
 \begin{tabular}{@{}lcccccccc@{}}
 \toprule
@@ -636,9 +639,12 @@ ER & 140 & 124 & 87 & 53 & 24 & 9 & 5 & 2.3 \\
 
 \section{Alignment Peak and Per-Layer Departure}\label{app:inverted}
 
-\begin{table}[h]
+We supplement \S\ref{sec:alignment} with the universal alignment-peak data (Table~\ref{tab:peak}) and the per-layer departure profile (Table~\ref{tab:inverted}).
+
+\begin{table}[!htbp]
 \centering
 \caption{The alignment peak is universal. All Pythia models peak at step~512; OLMo-2 1B peaks at step~1{,}000.}
+\label{tab:peak}
 \small
 \begin{tabular}{@{}lccccc@{}}
 \toprule
@@ -652,9 +658,10 @@ OLMo-2 1B & --- & 1{,}000 & 19.8\% & 5.5\% & 28\% \\
 \end{tabular}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \caption{Per-layer departure: inverted-U. Middle layers depart most; first and last do not.}
+\label{tab:inverted}
 \small
 \begin{tabular}{@{}ccccc@{}}
 \toprule
