@@ -502,5 +502,5 @@ with open("logs/dynamics_supporting/eigenvalue_gap.json", "w") as f:
 print("\nStep 5 saved.", flush=True)
 
 print(f"\n{'='*60}")
-print("ALL PAPER 1 EXPERIMENTS DONE")
+print("ALL EXPERIMENTS DONE")
 print(f"{'='*60}", flush=True)

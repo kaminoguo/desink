@@ -2,12 +2,6 @@
 node_modules/
 package.json
 package-lock.json
-screenshot.js
-handoff/
-handoff.tar.gz
-phantom_phases_draft.pdf
-phantom_phases_v3_source.tar.gz
-phantom_phases_v5_source.tar.gz
 *.aux
 *.log
 *.out
@@ -18,8 +12,5 @@ phantom_phases_v5_source.tar.gz
 __pycache__/
 *.pyc
 .DS_Store
-paper/figs/*.png
-!paper/figs/fig0_overview.png
 *.zip
 .claude/
-assets/
