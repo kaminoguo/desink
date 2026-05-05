@@ -442,8 +442,11 @@ We see no direct negative societal implications.
 \section*{Reproducibility Statement}
 All models are publicly available (GPT-2, Pythia, OLMo-2).
 De-sinking requires $O(nd)$ computation.
-Anonymized code is provided in the supplementary material; a permanent public release will accompany publication.
+Anonymized code is available at \url{https://anonymous.4open.science/r/desink-416C/} and in the supplementary material; a permanent public release will accompany publication.
 Total compute: ${\sim}$10 GPU-hours on a single A100.
+
+\section*{Use of AI Assistance}
+Generative AI assistants (Anthropic Claude) were used throughout the research process for ideation, mathematical derivation checking, code implementation, experiment design, data analysis, visualization, and manuscript drafting and editing. All theorem statements, proofs, algorithmic choices, experimental results, figures, and citations were independently validated and finalized by the author, who takes full responsibility for the correctness and originality of the submission.
 
 %======================================================================
 \bibliographystyle{plainnat}
@@ -453,13 +456,13 @@ Total compute: ${\sim}$10 GPU-hours on a single A100.
 F.~Barbero et al. Why do LLMs attend to the first token? In \emph{COLM}, 2025.
 
 \bibitem[Belrose et al.(2023)]{belrose2023eliciting}
-N.~Belrose et al. Eliciting latent predictions from transformers with the tuned lens. In \emph{NeurIPS}, 2023.
+N.~Belrose et al. Eliciting latent predictions from transformers with the tuned lens. \emph{arXiv:2303.08112}, 2023.
 
 \bibitem[Biderman et al.(2023)]{biderman2023pythia}
 S.~Biderman et al. Pythia: A suite for analyzing large language models across training and scaling. In \emph{ICML}, 2023.
 
-\bibitem[Cagnetta et al.(2024)]{cagnetta2024distributional}
-F.~Cagnetta et al. A distributional simplicity bias in the learning dynamics of transformers. \emph{arXiv:2410.19637}, 2024.
+\bibitem[Rende et al.(2024)]{cagnetta2024distributional}
+R.~Rende, F.~Gerace, A.~Laio, and S.~Goldt. A distributional simplicity bias in the learning dynamics of transformers. In \emph{NeurIPS}, 2024.
 
 \bibitem[Cancedda(2024)]{cancedda2024spectral}
 N.~Cancedda. Spectral filters, dark signals, and attention sinks. In \emph{ACL}, 2024.
@@ -721,11 +724,11 @@ L12 & 7.7 & 5.7 & 0.995 & $+8.3$ \\
 
 \item \textbf{Experimental result reproducibility.}
 \textit{Does the paper fully disclose all the information needed to reproduce the main experimental results?}
-\answerYes{All models are public (GPT-2, Pythia, OLMo-2). De-sinking is defined precisely (Algorithm~1). Anonymized code is provided in the supplementary material.}
+\answerYes{All models are public (GPT-2, Pythia, OLMo-2). De-sinking is defined precisely (Algorithm~1). Anonymized code: \url{https://anonymous.4open.science/r/desink-416C/} and supplementary material.}
 
 \item \textbf{Open access to data and code.}
 \textit{Does the paper provide open access to the data and code?}
-\answerYes{Anonymized code is provided in the supplementary material.}
+\answerYes{Anonymized code: \url{https://anonymous.4open.science/r/desink-416C/} and supplementary material.}
 
 \item \textbf{Experimental setting/details.}
 \textit{Does the paper specify all the training and test details?}
