@@ -1,7 +1,7 @@
 # De-Sinking
 
 > **Phantom Phases: How Attention Sinks Generate Fictitious Training Dynamics**
-> NeurIPS 2026 submission · [paper](paper/main.pdf) · [anonymous mirror](https://anonymous.4open.science/r/desink-416C/)
+> NeurIPS 2026 submission · [paper](paper/main.pdf)
 
 Standard spectral metrics on transformer hidden states — $E_1$, effective rank, RankMe, CKA, anisotropy — are systematically contaminated by the **attention sink**, an input-invariant high-variance direction that emerges during training.
 
@@ -38,26 +38,33 @@ All models are public Hugging Face checkpoints (GPT-2, Pythia, OLMo-2, Qwen2.5).
 <details>
 <summary><strong>Full experiment ↔ paper map</strong></summary>
 
+**Main paper**
+
 | Script | Paper artifact |
 |---|---|
 | `fig1_training_trajectory.py`           | Figure 1(a,b) — $E_1$ / ER on 20 Pythia-70M checkpoints |
 | `fig1c_theorem_fit.py`                  | Figure 1(c) — Theorem 1 fit, $R^2 = 0.978$ |
-| `fig1b_rank_growth_and_correlation.py`  | §5 — Pythia-160M / 1.4B / OLMo-2 1B dynamics + ER↔probe correlation |
-| `tab2_contamination_audit.py`           | Table 2 — five published metrics audited |
+| `tab2_contamination_audit.py`           | Table 2 + Figure 2 — five published metrics audited |
 | `fig3_cka_heatmap.py`                   | Figure 3 — layer × layer CKA heatmaps |
 | `tab3_fig4_scale_validation.py`         | Table 3 + Figure 4 — scale validation, 70M → 6.9B |
-| `tab_appE_manufacture_and_qwen.py`      | §3.4 — synthetic sink injection; Qwen2.5 GQA audit |
+| `sec34_manufacture_and_qwen_audit.py`   | §3.4 synthetic sink injection + Table 3 Qwen2.5 row |
+| `sec5_dynamics_and_controls.py`         | §5 — Pythia-160M / 1.4B / OLMo-2 1B dynamics + ER↔probe correlation |
 | `fig5a_alignment_peak.py`               | Figure 5(a) — Pythia alignment peak |
 | `fig5a_olmo_alignment.py`               | Figure 5(a) — OLMo-2 1B validation |
 | `fig5b_perlayer_departure.py`           | Figure 5(b) — inverted-U per-layer departure |
 | `fig6_capability_vs_sink.py`            | Figure 6 — capability vs sink growth |
-| `sink_emergence_checkpoints.py`         | §7 — sink formation across training |
+| `sec7_sink_emergence.py`                | §7 — sink formation across training |
+
+**Controls and appendices**
+
+| Script | Paper artifact |
+|---|---|
 | `controls_random_direction.py`          | §8 — matched-random direction control |
 | `controls_abt_comparison.py`            | §8 — All-but-the-Top vs de-sinking |
 | `controls_spectral_gap.py`              | §8 — eigenvalue gap analysis |
-| `tab_appB_probing.py`                   | Appendix B — probing on Pythia-70M (large-scale) |
-| `tab_appB_probing_multi.py`             | Appendix B — probing across three models |
-| `tab_appD_sink_geometry.py`             | Appendix D — sink ↔ unembedding geometry |
+| `app_b_probing.py`                      | Appendix B — probing on Pythia-70M (large-scale) |
+| `app_b_probing_multi.py`                | Appendix B — probing across three models |
+| `app_d_sink_geometry.py`                | Appendix D — sink ↔ unembedding geometry |
 | `app_negative_pruning.py`               | Appendix C — layer pruning (negative result) |
 | `app_negative_lora.py`                  | Appendix C — LoRA layer selection (inconclusive) |
 | `app_negative_cross_cka.py`             | Appendix C — cross-model CKA |
