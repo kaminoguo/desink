@@ -199,13 +199,13 @@ def main():
     else:
         print(f"\n→ Even spacing is best (matching doesn't matter)")
 
-    os.makedirs("logs/exp_I_distillation", exist_ok=True)
+    os.makedirs("logs/distillation", exist_ok=True)
     out = {
         "teacher": TEACHER, "n_teacher": n_teacher, "n_student": n_student,
         "match_even": match_even, "match_raw": match_raw, "match_ds": match_ds,
         "ppl_even": ppl_even, "ppl_raw": ppl_raw, "ppl_ds": ppl_ds,
     }
-    with open("logs/exp_I_distillation/distillation.json", "w") as f:
+    with open("logs/distillation/distillation.json", "w") as f:
         json.dump(out, f, indent=2)
     print(f"\nSaved.")
 

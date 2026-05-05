@@ -129,10 +129,10 @@ print(f"Loaded {len(texts)} texts")
 
 
 # ══════════════════════════════════════════════════════════════
-# T1-1: PYTHIA-160M TRAINING DYNAMICS
+# Step 1: Pythia-160M training dynamics
 # ══════════════════════════════════════════════════════════════
 print(f"\n{'='*60}")
-print("T1-1: PYTHIA-160M TRAINING DYNAMICS")
+print("Step 1: Pythia-160M training dynamics")
 print(f"{'='*60}", flush=True)
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -140,7 +140,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 STEPS_160M = [0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 143000]
 N_LAYERS_160M = 12
 
-t1_1_results = {"model": "pythia-160m", "layers": {}}
+p160m_results = {"model": "pythia-160m", "layers": {}}
 
 for layer_idx in range(N_LAYERS_160M):
     print(f"\n  Layer {layer_idx}:", flush=True)
@@ -184,22 +184,22 @@ for layer_idx in range(N_LAYERS_160M):
         del model, H
         torch.cuda.empty_cache()
 
-    t1_1_results["layers"][str(layer_idx)] = layer_data
+    p160m_results["layers"][str(layer_idx)] = layer_data
 
-os.makedirs("logs/paper1_supplementary", exist_ok=True)
-with open("logs/paper1_supplementary/t1_1_pythia160m_dynamics.json", "w") as f:
-    json.dump(t1_1_results, f, indent=2)
-print("\nT1-1 saved.", flush=True)
+os.makedirs("logs/dynamics_supporting", exist_ok=True)
+with open("logs/dynamics_supporting/pythia160m_dynamics.json", "w") as f:
+    json.dump(p160m_results, f, indent=2)
+print("\nStep 1 saved.", flush=True)
 
 
 # ══════════════════════════════════════════════════════════════
-# T1-2: PYTHIA-1.4B 20-CHECKPOINT TRAINING DYNAMICS
+# Step 2: Pythia-1.4B 20-checkpoint training dynamics
 # ══════════════════════════════════════════════════════════════
 print(f"\n{'='*60}")
-print("T1-2: PYTHIA-1.4B TRAINING DYNAMICS")
+print("Step 2: Pythia-1.4B training dynamics")
 print(f"{'='*60}", flush=True)
 
-t1_2_results = {"model": "pythia-1.4b", "layers": {}}
+p1_4b_results = {"model": "pythia-1.4b", "layers": {}}
 
 STEPS_1_4B = [0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 143000]
 N_LAYERS_1_4B = 24  # Pythia-1.4B has 24 layers
@@ -246,25 +246,25 @@ for layer_idx in range(N_LAYERS_1_4B):
         del model, H
         torch.cuda.empty_cache()
 
-    t1_2_results["layers"][str(layer_idx)] = layer_data
+    p1_4b_results["layers"][str(layer_idx)] = layer_data
 
-with open("logs/paper1_supplementary/t1_2_pythia1_4b_dynamics.json", "w") as f:
-    json.dump(t1_2_results, f, indent=2)
-print("\nT1-2 saved.", flush=True)
+with open("logs/dynamics_supporting/pythia1_4b_dynamics.json", "w") as f:
+    json.dump(p1_4b_results, f, indent=2)
+print("\nStep 2 saved.", flush=True)
 
 
 # ══════════════════════════════════════════════════════════════
-# T1-3: PYTHIA-160M ER-PROBE CORRELATION
+# Step 3: Pythia-160M ER vs probing-accuracy correlation
 # ══════════════════════════════════════════════════════════════
 print(f"\n{'='*60}")
-print("T1-3: PYTHIA-160M ER-PROBE CORRELATION")
+print("Step 3: Pythia-160M ER vs probing-accuracy correlation")
 print(f"{'='*60}", flush=True)
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score
 
 MID_LAYER = 5
-t1_3_data = []
+er_probe_data = []
 
 for step in STEPS_160M:
     revision = f"step{step}"
@@ -275,8 +275,8 @@ for step in STEPS_160M:
     except:
         continue
 
-    # Get ER from T1-1 results
-    l5_data = t1_1_results["layers"].get(str(MID_LAYER), [])
+    # Get ER from Step 1 results
+    l5_data = p160m_results["layers"].get(str(MID_LAYER), [])
     er_entry = [d for d in l5_data if d.get("step") == step]
     er_raw = er_entry[0]["ER_raw"] if er_entry else None
     er_ds = er_entry[0]["ER_ds"] if er_entry else None
@@ -334,7 +334,7 @@ for step in STEPS_160M:
     except:
         probe_acc = None
 
-    t1_3_data.append({
+    er_probe_data.append({
         "step": step, "ER_raw": er_raw, "ER_ds": er_ds, "probe_acc": probe_acc
     })
     print(f"  Step {step:6d}: ER_raw={er_raw:.1f}  ER_ds={er_ds:.1f}  probe={probe_acc:.4f}" if probe_acc else f"  Step {step}: probe failed", flush=True)
@@ -343,10 +343,10 @@ for step in STEPS_160M:
     torch.cuda.empty_cache()
 
 # Compute correlations
-if len(t1_3_data) >= 5:
-    er_raw_list = [d["ER_raw"] for d in t1_3_data if d["ER_raw"] is not None and d["probe_acc"] is not None]
-    er_ds_list = [d["ER_ds"] for d in t1_3_data if d["ER_ds"] is not None and d["probe_acc"] is not None]
-    probe_list = [d["probe_acc"] for d in t1_3_data if d["ER_raw"] is not None and d["probe_acc"] is not None]
+if len(er_probe_data) >= 5:
+    er_raw_list = [d["ER_raw"] for d in er_probe_data if d["ER_raw"] is not None and d["probe_acc"] is not None]
+    er_ds_list = [d["ER_ds"] for d in er_probe_data if d["ER_ds"] is not None and d["probe_acc"] is not None]
+    probe_list = [d["probe_acc"] for d in er_probe_data if d["ER_raw"] is not None and d["probe_acc"] is not None]
 
     rho_raw, p_raw = spearmanr(er_raw_list, probe_list)
     rho_ds, p_ds = spearmanr(er_ds_list, probe_list)
@@ -354,28 +354,28 @@ if len(t1_3_data) >= 5:
     print(f"\n  Raw ER vs probe: rho={rho_raw:.4f}, p={p_raw:.4e}")
     print(f"  De-sinked ER vs probe: rho={rho_ds:.4f}, p={p_ds:.4e}")
 
-    t1_3_results = {
+    er_probe_results = {
         "model": "pythia-160m", "layer": MID_LAYER,
         "rho_raw": float(rho_raw), "p_raw": float(p_raw),
         "rho_ds": float(rho_ds), "p_ds": float(p_ds),
-        "data": t1_3_data,
+        "data": er_probe_data,
     }
 else:
-    t1_3_results = {"model": "pythia-160m", "data": t1_3_data, "note": "insufficient data"}
+    er_probe_results = {"model": "pythia-160m", "data": er_probe_data, "note": "insufficient data"}
 
-with open("logs/paper1_supplementary/t1_3_pythia160m_er_probe.json", "w") as f:
-    json.dump(t1_3_results, f, indent=2)
-print("\nT1-3 saved.", flush=True)
+with open("logs/dynamics_supporting/pythia160m_er_probe.json", "w") as f:
+    json.dump(er_probe_results, f, indent=2)
+print("\nStep 3 saved.", flush=True)
 
 
 # ══════════════════════════════════════════════════════════════
-# T2-1: ALL-BUT-THE-TOP VS DE-SINKING
+# Step 4: All-but-the-Top vs de-sinking
 # ══════════════════════════════════════════════════════════════
 print(f"\n{'='*60}")
-print("T2-1: ALL-BUT-THE-TOP VS DE-SINKING")
+print("Step 4: All-but-the-Top vs de-sinking")
 print(f"{'='*60}", flush=True)
 
-t2_1_results = []
+abt_results = []
 
 for model_name, step, layer_idx in [
     ("EleutherAI/pythia-70m", 143000, 3),
@@ -441,7 +441,7 @@ for model_name, step, layer_idx in [
     methods["original"] = {"E1": m_orig["E1_raw"], "ER": m_orig["ER_raw"], "anisotropy": m_orig["anisotropy"]}
 
     entry = {"model": model_name, "step": step, "layer": layer_idx, "methods": methods}
-    t2_1_results.append(entry)
+    abt_results.append(entry)
 
     print(f"\n  {model_name} step={step} L{layer_idx}:")
     for method_name, vals in methods.items():
@@ -451,19 +451,19 @@ for model_name, step, layer_idx in [
     del model, H, H_bar
     torch.cuda.empty_cache()
 
-with open("logs/paper1_supplementary/t2_1_abt_comparison.json", "w") as f:
-    json.dump(t2_1_results, f, indent=2)
-print("\nT2-1 saved.", flush=True)
+with open("logs/dynamics_supporting/abt_comparison.json", "w") as f:
+    json.dump(abt_results, f, indent=2)
+print("\nStep 4 saved.", flush=True)
 
 
 # ══════════════════════════════════════════════════════════════
-# T2-2: EIGENVALUE GAP ANALYSIS
+# Step 5: Eigenvalue gap analysis
 # ══════════════════════════════════════════════════════════════
 print(f"\n{'='*60}")
-print("T2-2: EIGENVALUE GAP ANALYSIS")
+print("Step 5: Eigenvalue gap analysis")
 print(f"{'='*60}", flush=True)
 
-t2_2_results = []
+gap_results = []
 
 for model_name in ["EleutherAI/pythia-70m", "gpt2"]:
     try:
@@ -493,13 +493,13 @@ for model_name in ["EleutherAI/pythia-70m", "gpt2"]:
         print(f"  {model_name} L{layer_idx}: gap={metrics['gap_ratio']:.2f}x  E1={metrics['E1_raw']:.3f}", flush=True)
         del H
 
-    t2_2_results.append(model_data)
+    gap_results.append(model_data)
     del model
     torch.cuda.empty_cache()
 
-with open("logs/paper1_supplementary/t2_2_eigenvalue_gap.json", "w") as f:
-    json.dump(t2_2_results, f, indent=2)
-print("\nT2-2 saved.", flush=True)
+with open("logs/dynamics_supporting/eigenvalue_gap.json", "w") as f:
+    json.dump(gap_results, f, indent=2)
+print("\nStep 5 saved.", flush=True)
 
 print(f"\n{'='*60}")
 print("ALL PAPER 1 EXPERIMENTS DONE")

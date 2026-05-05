@@ -209,7 +209,7 @@ def main():
         print(f"\n→ No difference")
 
     # Save
-    os.makedirs("logs/exp_F_pruning", exist_ok=True)
+    os.makedirs("logs/pruning", exist_ok=True)
     out = {
         "model": MODEL, "n_layers": n_layers, "n_pruned": n_prune,
         "bi_raw": {str(k): float(v) for k, v in bi_raw.items()},
@@ -217,7 +217,7 @@ def main():
         "prune_raw": sorted(prune_raw), "prune_ds": sorted(prune_ds),
         "ppl_full": float(ppl_full), "ppl_raw_pruned": float(ppl_raw_pruned), "ppl_ds_pruned": float(ppl_ds_pruned),
     }
-    with open("logs/exp_F_pruning/layer_pruning.json", "w") as f:
+    with open("logs/pruning/layer_pruning.json", "w") as f:
         json.dump(out, f, indent=2)
     print(f"\nSaved. Total time: {time.time()-t0:.0f}s")
 

@@ -35,7 +35,7 @@ def main():
                  for i in range(N_TEXTS)]
     print(f"  {len(texts)} texts")
 
-    # Load existing B4 sink data if available
+    # Load existing sink-emergence data if available
     b4_path = os.path.join(os.path.dirname(__file__), "logs", "b4_v3_pythia_checkpoints.json")
     sink_data = {}
     if os.path.exists(b4_path):

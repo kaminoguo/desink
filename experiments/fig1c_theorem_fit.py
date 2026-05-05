@@ -5,25 +5,25 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
 # =============================================================================
-# DATA: B4 (norm_ratio = α proxy) + D1 (E1/ER raw & de-sinked), L3
+# DATA: sink norm-ratio (alpha proxy) + E1/ER raw & de-sinked at Pythia-70M layer 3
 # =============================================================================
 
-# B4 v3: norm_ratio at L3 for each checkpoint
+# Sink norm-ratio at L3 for each checkpoint (Pythia-70M)
 b4_steps = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 143000]
 b4_norm_ratio = [1.2386, 1.2385, 1.2386, 1.2373, 1.2093, 1.0611, 1.0716, 1.1365, 1.2134, 1.2417, 1.2428, 1.9450, 3.2844, 4.6828, 6.3338, 8.8487, 10.3075, 9.8898, 9.5947]
 
-# D1: L3 metrics for each checkpoint
+# E1/ER metrics at L3 for each checkpoint
 d1_steps = [0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 143000]
 d1_E1_raw = [0.0529, 0.0529, 0.0529, 0.0529, 0.0529, 0.0526, 0.0545, 0.2702, 0.2261, 0.1303, 0.0712, 0.0580, 0.0528, 0.2209, 0.3724, 0.5954, 0.6892, 0.7531, 0.7172, 0.6836]
 d1_E1_ds  = [0.0425, 0.0425, 0.0425, 0.0425, 0.0427, 0.0434, 0.0455, 0.1327, 0.1641, 0.1151, 0.0663, 0.0429, 0.0384, 0.0426, 0.0539, 0.0652, 0.0733, 0.0716, 0.0738, 0.0750]
 d1_ER_raw = [178.2, 178.2, 178.2, 178.2, 178.0, 176.9, 171.9, 60.9, 45.8, 78.7, 125.6, 175.6, 207.1, 119.8, 59.0, 17.3, 9.6, 6.4, 7.6, 9.2]
 d1_ER_ds  = [191.3, 191.3, 191.3, 191.3, 191.1, 189.8, 184.9, 125.3, 70.1, 97.0, 138.0, 190.9, 224.2, 236.2, 231.6, 216.8, 199.6, 187.1, 161.0, 155.6]
 
-# Align: B4 starts at step=1, D1 starts at step=0. 
-# Map step 0 in D1 to step 1 in B4 (both are essentially init)
+# Align: norm-ratio data starts at step=1, E1/ER data starts at step=0.
+# Map step 0 to step 1 (both are essentially init)
 # Create aligned arrays using matching steps
 b4_dict = dict(zip(b4_steps, b4_norm_ratio))
-# For step 0 in D1, use step 1's norm_ratio from B4
+# For step 0, use step 1's norm-ratio
 b4_dict[0] = b4_dict[1]
 
 aligned_steps = []
@@ -226,13 +226,13 @@ else:
     print(f"\n❌ Fit is weak. Need to revise the model before writing.")
 
 # =============================================================================
-# CROSS-VALIDATION: Use D4 data to check if model generalizes
+# CROSS-VALIDATION: use scale-validation data to check generalization
 # =============================================================================
 print("\n" + "="*80)
 print("CROSS-VALIDATION ON D4 (Pythia-6.9B, GPT-2-XL)")
 print("="*80)
 
-# For D4, we don't have norm_ratio per layer, but we can back-calculate
+# For scale-validation data we don't have norm_ratio per layer, but we can back-calculate
 # From E1 model: k*r² = E1_raw*(k*r²+1) - E1_ds = ... 
 # Actually we can check: given E1_raw and E1_ds, does k*r² = (E1_raw - E1_ds)/(1 - E1_raw)?
 # If so, the implied r should be physically reasonable

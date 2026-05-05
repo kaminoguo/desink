@@ -9,7 +9,7 @@ DEVICE = "cuda"
 # os.environ["HF_HOME"] = ...  # set if needed
 LOG_DIR = os.path.join(os.path.dirname(__file__), "logs")
 os.makedirs(LOG_DIR, exist_ok=True)
-LOG_FILE = os.path.join(LOG_DIR, "exp77_output.log")
+LOG_FILE = os.path.join(LOG_DIR, "alignment_peak_output.log")
 
 MODEL_NAME = "EleutherAI/pythia-410m"
 TARGET_LAYER = 12
@@ -169,7 +169,7 @@ def main():
         tokenizer.pad_token = tokenizer.eos_token
 
     all_results = []
-    json_path = os.path.join(LOG_DIR, "exp77_data.json")
+    json_path = os.path.join(LOG_DIR, "alignment_peak_data.json")
 
     for si, step in enumerate(KEY_STEPS):
         log(f"\n  [{si+1}/{len(KEY_STEPS)}] Step {step}")

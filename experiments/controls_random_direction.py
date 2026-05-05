@@ -9,7 +9,7 @@ DEVICE = "cuda"
 # os.environ["HF_HOME"] = ...  # set if needed
 LOG_DIR = os.path.join(os.path.dirname(__file__), "logs")
 os.makedirs(LOG_DIR, exist_ok=True)
-LOG_FILE = os.path.join(LOG_DIR, "exp95_output.log")
+LOG_FILE = os.path.join(LOG_DIR, "matched_random_output.log")
 
 MODEL_NAME = "EleutherAI/pythia-410m"
 N_RANDOM_TRIALS = 5
@@ -284,7 +284,7 @@ def main():
             log(f"    >>> Position-0 is simply fragile — carrier is just the biggest direction")
 
     # Save
-    json_path = os.path.join(LOG_DIR, "exp95_data.json")
+    json_path = os.path.join(LOG_DIR, "matched_random_data.json")
     with open(json_path, "w") as f:
         json.dump({
             "baseline_ppl": baseline_ppl,

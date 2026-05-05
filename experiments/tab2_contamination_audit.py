@@ -362,7 +362,7 @@ def main():
     if device.type == "cuda":
         print(f"GPU: {torch.cuda.get_device_name()}")
 
-    save_dir = "logs/exp_a5"
+    save_dir = "logs/contamination_audit"
     os.makedirs(save_dir, exist_ok=True)
 
     np.random.seed(42)

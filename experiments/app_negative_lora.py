@@ -157,7 +157,7 @@ def main():
         eval_tokenized = eval_ds_ag.map(tokenize, batched=True, remove_columns=eval_ds_ag.column_names)
 
         args = TrainingArguments(
-            output_dir=f"/tmp/lora_{label}",
+            output_dir=f"logs/lora/{label}",
             num_train_epochs=1,
             per_device_train_batch_size=4,
             per_device_eval_batch_size=4,
@@ -198,7 +198,7 @@ def main():
         print("\npeft not installed, skipping LoRA fine-tuning. Install with: pip install peft")
         ppl_raw, ppl_ds = None, None
 
-    os.makedirs("logs/exp_G_lora", exist_ok=True)
+    os.makedirs("logs/lora_selection", exist_ok=True)
     out = {
         "model": MODEL, "n_layers": n_layers, "n_lora": n_lora,
         "cka_raw": {str(k): v for k, v in cka_raw.items()},
@@ -206,7 +206,7 @@ def main():
         "lora_raw": sorted(lora_raw), "lora_ds": sorted(lora_ds),
         "ppl_raw": ppl_raw, "ppl_ds": ppl_ds,
     }
-    with open("logs/exp_G_lora/lora_selection.json", "w") as f:
+    with open("logs/lora_selection/lora_selection.json", "w") as f:
         json.dump(out, f, indent=2)
     print(f"\nSaved.")
 

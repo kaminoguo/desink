@@ -124,7 +124,7 @@ def main():
     if device.type == "cuda":
         print(f"GPU: {torch.cuda.get_device_name()}")
 
-    save_dir = "logs/exp_b4_v3"
+    save_dir = "logs/sink_emergence"
     os.makedirs(save_dir, exist_ok=True)
 
     # Load tokenizer

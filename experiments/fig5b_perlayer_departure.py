@@ -9,7 +9,7 @@ DEVICE = "cuda"
 # os.environ["HF_HOME"] = ...  # set if needed
 LOG_DIR = os.path.join(os.path.dirname(__file__), "logs")
 os.makedirs(LOG_DIR, exist_ok=True)
-LOG_FILE = os.path.join(LOG_DIR, "exp116_output.log")
+LOG_FILE = os.path.join(LOG_DIR, "perlayer_departure_output.log")
 
 VOCAB_SIZE = 50257
 MAX_SEQ_LEN = 512
@@ -280,7 +280,7 @@ def main():
         log(f"    L{i}: NsER={final_er:.1f}")
 
     # Save
-    json_path = os.path.join(LOG_DIR, "exp116_data.json")
+    json_path = os.path.join(LOG_DIR, "perlayer_departure_data.json")
     with open(json_path, "w") as f:
         json.dump(all_results, f, indent=2, default=str)
 

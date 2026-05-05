@@ -133,7 +133,7 @@ def main():
     else:
         print(f"\n→ MINIMAL DROP: Cross-model similarity is genuine, not sink-driven")
 
-    os.makedirs("logs/exp_H_cross_model", exist_ok=True)
+    os.makedirs("logs/cross_model_cka", exist_ok=True)
     out = {
         "models": ["gpt2", "EleutherAI/pythia-70m"],
         "n_tokens": min_n,
@@ -145,7 +145,7 @@ def main():
         "raw_cka_matrix": cka_raw.tolist(),
         "ds_cka_matrix": cka_ds.tolist(),
     }
-    with open("logs/exp_H_cross_model/cross_model_cka.json", "w") as f:
+    with open("logs/cross_model_cka/cross_model_cka.json", "w") as f:
         json.dump(out, f, indent=2)
     print(f"\nSaved.")
 

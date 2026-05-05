@@ -87,7 +87,7 @@ def main():
     if device.type == "cuda":
         print(f"GPU: {torch.cuda.get_device_name()}")
 
-    save_dir = "logs/exp_c1"
+    save_dir = "logs/sink_geometry"
     os.makedirs(save_dir, exist_ok=True)
 
     models_to_test = [
@@ -268,7 +268,7 @@ def main():
               f"{final['desink_pc1_max_align']:>9.3f} {final['sink_max_align']:>9.3f}")
 
     # Save
-    out_path = os.path.join(save_dir, "c1_final_layer_decomposition.json")
+    out_path = os.path.join(save_dir, "final_layer_decomposition.json")
     with open(out_path, 'w') as f:
         json.dump(all_model_results, f, indent=2)
     print(f"\nResults saved to {out_path}")

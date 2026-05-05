@@ -49,7 +49,7 @@ for mn in ["EleutherAI/pythia-70m", "openai-community/gpt2"]:
         del H
     results.append(md); del mod; torch.cuda.empty_cache()
 
-os.makedirs("logs/paper1_supplementary", exist_ok=True)
-with open("logs/paper1_supplementary/t2_2_eigenvalue_gap.json", "w") as f:
+os.makedirs("logs/spectral_gap", exist_ok=True)
+with open("logs/spectral_gap/eigenvalue_gap.json", "w") as f:
     json.dump(results, f, indent=2)
-print("T2-2 DONE")
+print("Spectral gap analysis done.")

@@ -9,7 +9,7 @@ DEVICE = "cuda"
 # os.environ["HF_HOME"] = ...  # set if needed
 LOG_DIR = os.path.join(os.path.dirname(__file__), "logs")
 os.makedirs(LOG_DIR, exist_ok=True)
-LOG_FILE = os.path.join(LOG_DIR, "exp106_output.log")
+LOG_FILE = os.path.join(LOG_DIR, "olmo_alignment_output.log")
 
 MODEL_NAME = "allenai/OLMo-2-0425-1B-early-training"
 
@@ -287,7 +287,7 @@ def main():
         log(sv1_line)
 
     # Save
-    json_path = os.path.join(LOG_DIR, "exp106_data.json")
+    json_path = os.path.join(LOG_DIR, "olmo_alignment_data.json")
     with open(json_path, "w") as f:
         json.dump(results, f, indent=2, default=str)
 

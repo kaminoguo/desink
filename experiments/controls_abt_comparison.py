@@ -70,7 +70,7 @@ for model_name, step, layer_idx in [
         if "E1" in vals: print(f"  {mn:20s}: E1={vals['E1']:.4f} ER={vals['ER']:.1f} aniso={vals['anisotropy']:.4f}")
     del mod, H, H_bar; torch.cuda.empty_cache()
 
-os.makedirs("logs/paper1_supplementary", exist_ok=True)
-with open("logs/paper1_supplementary/t2_1_abt_comparison.json", "w") as f:
+os.makedirs("logs/abt_comparison", exist_ok=True)
+with open("logs/abt_comparison/abt_comparison.json", "w") as f:
     json.dump(results, f, indent=2)
-print("\nT2-1 DONE")
+print("\nABT vs de-sinking comparison done.")

@@ -157,7 +157,7 @@ def main():
     if device.type == "cuda":
         print(f"GPU: {torch.cuda.get_device_name()}")
 
-    save_dir = "logs/exp_b3_large"
+    save_dir = "logs/probing"
     os.makedirs(save_dir, exist_ok=True)
 
     # Load model

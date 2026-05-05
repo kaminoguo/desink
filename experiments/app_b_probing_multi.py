@@ -168,7 +168,7 @@ def main():
     if device.type == "cuda":
         print(f"GPU: {torch.cuda.get_device_name()}")
 
-    save_dir = "logs/exp_c2"
+    save_dir = "logs/probing_multi"
     os.makedirs(save_dir, exist_ok=True)
 
     models_to_test = [
@@ -353,7 +353,7 @@ def main():
             print(f"    → B3 result may be model-specific")
 
     # Save
-    out_path = os.path.join(save_dir, "c2_probing_multi_model.json")
+    out_path = os.path.join(save_dir, "probing_multi_model.json")
     with open(out_path, 'w') as f:
         json.dump(all_model_results, f, indent=2)
     print(f"\nResults saved to {out_path}")

@@ -123,7 +123,7 @@ for alpha_scale in alpha_scales:
     })
     print(f"  alpha={alpha_scale:3d}: E1={E1_inj:.4f}  ER={ER_inj:.1f}  aniso={aniso:.4f}", flush=True)
 
-exp_a = {
+sink_injection = {
     "experiment": "synthetic_sink_injection",
     "base_model": "pythia-70m", "base_step": 512, "base_layer": "L3",
     "base_E1": E1_base, "base_ER": ER_base,
@@ -151,7 +151,7 @@ GQA_MODELS = [
     ("TinyLlama/TinyLlama-1.1B-Chat-v1.0", "TinyLlama (GQA, RoPE)"),
 ]
 
-exp_b = None
+gqa_audit = None
 
 for model_name, arch_desc in GQA_MODELS:
     print(f"\nTrying {model_name}...", flush=True)
@@ -203,7 +203,7 @@ for model_name, arch_desc in GQA_MODELS:
               f"gap {gap:.1f}x  α {sink_alpha:.1f}x", flush=True)
         del H
 
-    exp_b = {
+    gqa_audit = {
         "model": model_name, "architecture": arch_desc,
         "n_layers": n_layers, "layers": layer_results,
     }
@@ -216,12 +216,12 @@ print(f"\nExp B done in {time.time()-t1:.0f}s", flush=True)
 # ══════════════════════════════════════════════════════════════
 # SAVE
 # ══════════════════════════════════════════════════════════════
-os.makedirs("/root/logs/p1_final", exist_ok=True)
-with open("/root/logs/p1_final/exp_a_sink_injection.json", "w") as f:
-    json.dump(exp_a, f, indent=2)
-if exp_b:
-    with open("/root/logs/p1_final/exp_b_gqa_audit.json", "w") as f:
-        json.dump(exp_b, f, indent=2)
+os.makedirs("logs/manufacture_and_qwen", exist_ok=True)
+with open("logs/manufacture_and_qwen/sink_injection.json", "w") as f:
+    json.dump(sink_injection, f, indent=2)
+if gqa_audit is not None:
+    with open("logs/manufacture_and_qwen/gqa_audit.json", "w") as f:
+        json.dump(gqa_audit, f, indent=2)
 
 print("\n" + "="*60)
 print("ALL DONE")
