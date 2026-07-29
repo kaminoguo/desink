@@ -1,95 +1,157 @@
-"""De-sinking: removing the attention sink artifact from transformer hidden states."""
+"""De-sinking: removing the leading direction from transformer hidden states.
 
-import torch
+The whole method is one line,
+
+    C = H - (H @ s)[:, None] * s
+
+with ``s`` the top right singular vector of the centered ``H``.  Everything else
+in this file computes the spectral summaries the projection acts on, and checks
+the identity that relates the two.
+"""
+
 import numpy as np
+import torch
+
+__all__ = [
+    "compute_sink_direction",
+    "desink",
+    "spectral_metrics",
+    "sink_strength",
+    "identity_check",
+]
+
+
+def _as_torch(H):
+    if isinstance(H, np.ndarray):
+        return torch.from_numpy(H).float(), True
+    return H, False
 
 
 def compute_sink_direction(H):
-    """Compute the sink direction as the first right singular vector of centered H.
+    """Top right singular vector of the centered ``H``.
 
     Args:
-        H: Hidden states, shape (n, d). Torch tensor or numpy array.
+        H: hidden states, shape ``(n_tokens, d_model)``.
 
     Returns:
-        s: Unit sink direction, shape (d,).
+        Unit vector of shape ``(d_model,)``, same type as ``H``.
     """
-    is_numpy = isinstance(H, np.ndarray)
-    if is_numpy:
-        H = torch.from_numpy(H).float()
-
-    H_bar = H - H.mean(dim=0, keepdim=True)
-    _, _, Vt = torch.linalg.svd(H_bar, full_matrices=False)
+    Ht, was_numpy = _as_torch(H)
+    _, _, Vt = torch.linalg.svd(Ht - Ht.mean(dim=0, keepdim=True), full_matrices=False)
     s = Vt[0]
-
-    return s.numpy() if is_numpy else s
+    return s.numpy() if was_numpy else s
 
 
 def desink(H, s=None):
-    """Remove the sink direction from hidden states.
+    """Project the leading direction out of ``H``.
 
     Args:
-        H: Hidden states, shape (n, d). Torch tensor or numpy array.
-        s: Optional precomputed sink direction, shape (d,).
-           If None, computed via SVD of centered H.
+        H: hidden states, shape ``(n_tokens, d_model)``.
+        s: precomputed direction. Defaults to the top right singular vector of
+           the centered ``H``.
 
     Returns:
-        H_ds: De-sinked hidden states, same shape and type as H.
+        The residual ``C``, same shape and type as ``H``.
     """
-    is_numpy = isinstance(H, np.ndarray)
-    if is_numpy:
-        H = torch.from_numpy(H).float()
-
+    Ht, was_numpy = _as_torch(H)
     if s is None:
-        s = compute_sink_direction(H)
+        s = compute_sink_direction(Ht)
     elif isinstance(s, np.ndarray):
         s = torch.from_numpy(s).float()
-
-    proj = H @ s
-    H_ds = H - proj.unsqueeze(-1) * s.unsqueeze(0)
-
-    return H_ds.numpy() if is_numpy else H_ds
+    C = Ht - (Ht @ s).unsqueeze(-1) * s.unsqueeze(0)
+    return C.numpy() if was_numpy else C
 
 
-def spectral_metrics(H):
-    """Compute standard spectral metrics for representation analysis.
+def _exp_entropy(w):
+    """exp of the Shannon entropy of ``w`` normalized to a distribution."""
+    p = w / w.sum()
+    p = p[p > 1e-12]
+    return float(torch.exp(-(p * torch.log(p)).sum()))
+
+
+def spectral_metrics(H, n_aniso_sample=4096, generator=None):
+    """The five summaries the paper studies.
+
+    ``effective_rank`` applies the exponential entropy to normalized
+    eigenvalues, the convention of the training-dynamics literature.
+    ``rankme`` applies it to normalized singular values, the convention of
+    Garrido et al.  Section 3 of the paper shows that this choice decides how
+    much a single direction can distort the result.
+
+    ``anisotropy`` is the mean pairwise cosine of the *uncentered* rows, the
+    definition of Ethayarajh (2019).  ``anisotropy_centered`` is the same
+    statistic after centering; it is much smaller, and it is reported only
+    because some implementations use it.
 
     Args:
-        H: Hidden states, shape (n, d).
+        H: hidden states, shape ``(n_tokens, d_model)``.
+        n_aniso_sample: rows subsampled for the anisotropy estimate.
+        generator: optional ``torch.Generator`` for that subsample.
 
     Returns:
-        dict with keys: e1 (first-PC variance share), er (effective rank),
-        rankme (RankMe), anisotropy (avg pairwise cosine similarity).
+        dict with keys ``e1``, ``effective_rank``, ``rankme``, ``anisotropy``,
+        ``anisotropy_centered``, ``spectral_gap``.
     """
-    is_numpy = isinstance(H, np.ndarray)
-    if is_numpy:
-        H = torch.from_numpy(H).float()
+    Ht, _ = _as_torch(H)
+    Hc = Ht - Ht.mean(dim=0, keepdim=True)
+    sv = torch.linalg.svdvals(Hc).double()
+    ev = sv ** 2
 
-    H_bar = H - H.mean(dim=0, keepdim=True)
-    S = torch.linalg.svdvals(H_bar)
-    S2 = S ** 2
-    total = S2.sum()
+    def mean_pairwise_cosine(X):
+        n = X.shape[0]
+        if n > n_aniso_sample:
+            idx = torch.randperm(n, generator=generator)[:n_aniso_sample]
+            X = X[idx]
+        U = X / (X.norm(dim=1, keepdim=True) + 1e-10)
+        G = (U @ U.T).double()
+        m = U.shape[0]
+        return float((G.sum() - m) / (m * (m - 1)))
 
-    # E1: first-PC variance share
-    e1 = (S2[0] / total).item()
+    return {
+        "e1": float(ev[0] / ev.sum()),
+        "effective_rank": _exp_entropy(ev),
+        "rankme": _exp_entropy(sv),
+        "anisotropy": mean_pairwise_cosine(Ht),
+        "anisotropy_centered": mean_pairwise_cosine(Hc),
+        "spectral_gap": float(sv[0] / sv[1]) if len(sv) > 1 else float("inf"),
+    }
 
-    # Effective rank: exp(entropy of normalized eigenvalue spectrum)
-    p = S2 / total
-    p = p[p > 1e-12]
-    er = torch.exp(-torch.sum(p * torch.log(p))).item()
 
-    # RankMe: exp(entropy of normalized singular values)
-    p_sv = S / S.sum()
-    p_sv = p_sv[p_sv > 1e-12]
-    rankme = torch.exp(-torch.sum(p_sv * torch.log(p_sv))).item()
+def sink_strength(H, seq_len):
+    """Mean norm at sequence position 0 over the mean norm everywhere else.
 
-    # Anisotropy: average pairwise cosine similarity
-    H_norm = H_bar / (H_bar.norm(dim=1, keepdim=True) + 1e-8)
-    if H_norm.shape[0] > 2000:
-        idx = torch.randperm(H_norm.shape[0])[:2000]
-        H_norm = H_norm[idx]
-    cos_sim = H_norm @ H_norm.T
-    n = cos_sim.shape[0]
-    mask = ~torch.eye(n, dtype=torch.bool, device=cos_sim.device)
-    anisotropy = cos_sim[mask].mean().item()
+    Args:
+        H: hidden states of ``n_tokens // seq_len`` equal-length sequences
+           stacked in order, shape ``(n_tokens, d_model)``.
+        seq_len: tokens per sequence.
 
-    return {"e1": e1, "er": er, "rankme": rankme, "anisotropy": anisotropy}
+    Returns:
+        The ratio the paper calls ``alpha``.
+    """
+    Ht, _ = _as_torch(H)
+    norms = Ht.norm(dim=1)
+    at0 = torch.zeros(len(norms), dtype=torch.bool)
+    at0[::seq_len] = True
+    return float(norms[at0].mean() / norms[~at0].mean())
+
+
+def identity_check(H):
+    """Proposition 2 of the paper, evaluated on ``H``.
+
+    ``ER(H) = exp(h_b(E1)) * ER(C) ** (1 - E1)`` holds for every matrix, so the
+    relative error returned here is the error of the eigendecomposition, around
+    ``1e-15`` in double precision.
+
+    Returns:
+        dict with ``measured``, ``predicted``, ``relative_error``.
+    """
+    raw = spectral_metrics(H)
+    res = spectral_metrics(desink(H))
+    p = raw["e1"]
+    hb = -(p * np.log(p) + (1 - p) * np.log1p(-p))
+    predicted = float(np.exp(hb) * res["effective_rank"] ** (1 - p))
+    return {
+        "measured": raw["effective_rank"],
+        "predicted": predicted,
+        "relative_error": abs(predicted - raw["effective_rank"]) / raw["effective_rank"],
+    }

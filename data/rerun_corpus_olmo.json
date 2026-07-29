@@ -1,0 +1,17 @@
+{
+  "source": "Skylion007/openwebtext @ refs/convert/parquet shard 0000",
+  "tokenizer": "allenai/OLMo-2-0425-1B-early-training",
+  "seq_len": 512,
+  "n_seq": 1184,
+  "n_seq_per_seed": 392,
+  "n_seeds": 3,
+  "n_probe_seq": 8,
+  "n_tokens": 606208,
+  "packing": "documents concatenated with no separator, then chunked",
+  "sha256_16": "52c12b54077f9a07",
+  "checks": {
+    "n_unique_token_ids": 33846,
+    "n_duplicate_sequences": 0,
+    "per_seq_unique_frac_mean": 0.5373898067989865
+  }
+}

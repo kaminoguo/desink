@@ -1,0 +1,174 @@
+\begin{thebibliography}{24}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Barbero et~al.(2025)Barbero, Arroyo, Gu, Perivolaropoulos, Bronstein,
+  Veli{\v{c}}kovi{\'c}, and Pascanu]{barbero2025first}
+Federico Barbero, Alvaro Arroyo, Xiangming Gu, Christos Perivolaropoulos,
+  Michael~M. Bronstein, Petar Veli{\v{c}}kovi{\'c}, and Razvan Pascanu.
+\newblock Why do {LLM}s attend to the first token?
+\newblock In \emph{Conference on Language Modeling (COLM)}, 2025.
+\newblock arXiv:2504.02732.
+
+\bibitem[Biderman et~al.(2023)Biderman, Schoelkopf, Anthony, Bradley, O'Brien,
+  Hallahan, Khan, Purohit, Prashanth, Raff, Skowron, Sutawika, and van~der
+  Wal]{biderman2023pythia}
+Stella Biderman, Hailey Schoelkopf, Quentin~Gregory Anthony, Herbie Bradley,
+  Kyle O'Brien, Eric Hallahan, Mohammad~Aflah Khan, Shivanshu Purohit,
+  USVSN~Sai Prashanth, Edward Raff, Aviya Skowron, Lintang Sutawika, and Oskar
+  van~der Wal.
+\newblock Pythia: A suite for analyzing large language models across training
+  and scaling.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2023.
+
+\bibitem[Cancedda(2024)]{cancedda2024spectral}
+Nicola Cancedda.
+\newblock Spectral filters, dark signals, and attention sinks.
+\newblock In \emph{Annual Meeting of the Association for Computational
+  Linguistics (ACL)}, 2024.
+
+\bibitem[Darcet et~al.(2024)Darcet, Oquab, Mairal, and
+  Bojanowski]{darcet2024registers}
+Timoth{\'e}e Darcet, Maxime Oquab, Julien Mairal, and Piotr Bojanowski.
+\newblock Vision transformers need registers.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2024.
+
+\bibitem[Ethayarajh(2019)]{ethayarajh2019contextual}
+Kawin Ethayarajh.
+\newblock How contextual are contextualized word representations? comparing the
+  geometry of {BERT}, {ELM}o, and {GPT}-2 embeddings.
+\newblock In \emph{Conference on Empirical Methods in Natural Language
+  Processing (EMNLP)}, 2019.
+
+\bibitem[Garrido et~al.(2023)Garrido, Balestriero, Najman, and
+  LeCun]{garrido2023rankme}
+Quentin Garrido, Randall Balestriero, Laurent Najman, and Yann LeCun.
+\newblock {R}ank{M}e: Assessing the downstream performance of pretrained
+  self-supervised representations by their rank.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2023.
+
+\bibitem[Gokaslan \& Cohen(2019)Gokaslan and Cohen]{gokaslan2019openwebtext}
+Aaron Gokaslan and Vanya Cohen.
+\newblock {O}pen{W}eb{T}ext corpus, 2019.
+\newblock \url{http://Skylion007.github.io/OpenWebTextCorpus}.
+
+\bibitem[Gu et~al.(2025)Gu, Pang, Du, Liu, Zhang, Du, Wang, and
+  Lin]{gu2025attention}
+Xiangming Gu, Tianyu Pang, Chao Du, Qian Liu, Fengzhuo Zhang, Cunxiao Du,
+  Ye~Wang, and Min Lin.
+\newblock When attention sink emerges in language models: An empirical view.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2025.
+
+\bibitem[Kornblith et~al.(2019)Kornblith, Norouzi, Lee, and
+  Hinton]{kornblith2019similarity}
+Simon Kornblith, Mohammad Norouzi, Honglak Lee, and Geoffrey~E. Hinton.
+\newblock Similarity of neural network representations revisited.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2019.
+
+\bibitem[Kulkarni et~al.(2026)Kulkarni, Springer, Subramonian, and
+  Swayamdipta]{kulkarni2026disentangling}
+Atharva Kulkarni, Jacob~Mitchell Springer, Arjun Subramonian, and Swabha
+  Swayamdipta.
+\newblock Disentangling geometry, performance, and training in language models.
+\newblock \emph{arXiv:2602.20433}, 2026.
+
+\bibitem[Li et~al.(2020)Li, Zhou, He, Wang, Yang, and Li]{li2020sentence}
+Bohan Li, Hao Zhou, Junxian He, Mingxuan Wang, Yiming Yang, and Lei Li.
+\newblock On the sentence embeddings from pre-trained language models.
+\newblock In \emph{Conference on Empirical Methods in Natural Language
+  Processing (EMNLP)}, 2020.
+
+\bibitem[Li et~al.(2025)Li, Agrawal, Ghosh, Teru, Santoro, Lajoie, and
+  Richards]{li2025tracing}
+Melody~Zixuan Li, Kumar~Krishna Agrawal, Arna Ghosh, Komal~Kumar Teru, Adam
+  Santoro, Guillaume Lajoie, and Blake~A. Richards.
+\newblock Tracing the representation geometry of language models from
+  pretraining to post-training.
+\newblock \emph{arXiv:2509.23024}, 2025.
+
+\bibitem[Merity et~al.(2017)Merity, Xiong, Bradbury, and
+  Socher]{merity2017pointer}
+Stephen Merity, Caiming Xiong, James Bradbury, and Richard Socher.
+\newblock Pointer sentinel mixture models.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2017.
+
+\bibitem[Mu \& Viswanath(2018)Mu and Viswanath]{mu2018allbutthetop}
+Jiaqi Mu and Pramod Viswanath.
+\newblock All-but-the-top: Simple and effective postprocessing for word
+  representations.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2018.
+
+\bibitem[Queipo-de Llano et~al.(2025)Queipo-de Llano, Arroyo, Barbero, Dong,
+  Bronstein, LeCun, and Shwartz-Ziv]{queipodellano2025sinks}
+Enrique Queipo-de Llano, Alvaro Arroyo, Federico Barbero, Xiaowen Dong,
+  Michael~M. Bronstein, Yann LeCun, and Ravid Shwartz-Ziv.
+\newblock Attention sinks and compression valleys in {LLM}s are two sides of
+  the same coin.
+\newblock \emph{arXiv:2510.06477}, 2025.
+
+\bibitem[Radford et~al.(2019)Radford, Wu, Child, Luan, Amodei, and
+  Sutskever]{radford2019language}
+Alec Radford, Jeffrey Wu, Rewon Child, David Luan, Dario Amodei, and Ilya
+  Sutskever.
+\newblock Language models are unsupervised multitask learners.
+\newblock Technical report, OpenAI, 2019.
+
+\bibitem[Raghu et~al.(2021)Raghu, Unterthiner, Kornblith, Zhang, and
+  Dosovitskiy]{raghu2021vision}
+Maithra Raghu, Thomas Unterthiner, Simon Kornblith, Chiyuan Zhang, and Alexey
+  Dosovitskiy.
+\newblock Do vision transformers see like convolutional neural networks?
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2021.
+
+\bibitem[Rajaee \& Pilehvar(2021)Rajaee and Pilehvar]{rajaee2021cluster}
+Sara Rajaee and Mohammad~Taher Pilehvar.
+\newblock A cluster-based approach for improving isotropy in contextual
+  embedding space.
+\newblock In \emph{Annual Meeting of the Association for Computational
+  Linguistics (ACL)}, 2021.
+
+\bibitem[Roy \& Vetterli(2007)Roy and Vetterli]{roy2007effective}
+Olivier Roy and Martin Vetterli.
+\newblock The effective rank: A measure of effective dimensionality.
+\newblock In \emph{European Signal Processing Conference (EUSIPCO)}, 2007.
+
+\bibitem[Sun et~al.(2024)Sun, Chen, Kolter, and Liu]{sun2024massive}
+Mingjie Sun, Xinlei Chen, J.~Zico Kolter, and Zhuang Liu.
+\newblock Massive activations in large language models.
+\newblock In \emph{Conference on Language Modeling (COLM)}, 2024.
+\newblock arXiv:2402.17762.
+
+\bibitem[Timkey \& van Schijndel(2021)Timkey and van Schijndel]{timkey2021all}
+William Timkey and Marten van Schijndel.
+\newblock All bark and no bite: Rogue dimensions in transformer language models
+  obscure representational quality.
+\newblock In \emph{Conference on Empirical Methods in Natural Language
+  Processing (EMNLP)}, 2021.
+
+\bibitem[Xiao et~al.(2024)Xiao, Tian, Chen, Han, and Lewis]{xiao2024efficient}
+Guangxuan Xiao, Yuandong Tian, Beidi Chen, Song Han, and Mike Lewis.
+\newblock Efficient streaming language models with attention sinks.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2024.
+
+\bibitem[Yang et~al.(2024)Yang, Yang, Zhang, Hui, Zheng, Yu,
+  et~al.]{qwen2024qwen25}
+An~Yang, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo~Zheng, Bowen Yu, et~al.
+\newblock {Q}wen2.5 technical report.
+\newblock \emph{arXiv:2412.15115}, 2024.
+
+\bibitem[Zhang et~al.(2025)Zhang, Khan, and Papyan]{zhang2025catch}
+Stephen Zhang, Mustafa Khan, and Vardan Papyan.
+\newblock Attention sinks: A `catch, tag, release' mechanism for embeddings.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2025.
+
+\end{thebibliography}

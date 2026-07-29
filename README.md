@@ -1,88 +1,141 @@
 # De-Sinking
 
-> **Phantom Phases: How Attention Sinks Generate Fictitious Training Dynamics**
-> NeurIPS 2026 submission · [paper](paper/main.pdf)
+**Spectral Metrics of Transformer Training Are Determined by a Single Direction**
+· [paper (PDF)](paper/main.pdf) · [every number, traced to its data file](numbers.txt)
 
-Standard spectral metrics on transformer hidden states — $E_1$, effective rank, RankMe, CKA, anisotropy — are systematically contaminated by the **attention sink**, an input-invariant high-variance direction that emerges during training.
+Effective rank, RankMe, $E_1$, CKA and anisotropy are used to describe how transformer
+representations reorganize during pretraining. Each is a functional of one matrix of token
+representations, and one direction in that matrix fixes its value.
 
-The "geometric phases" and "rank collapse" widely reported in the literature are largely measurement artifacts. *De-sinking*, a single rank-1 projection, removes the contamination and reveals a different story: monotonic rank **growth**, not collapse, and a previously invisible shortcut-to-full-rank transition. Distortions reach $721\times$ in effective rank at 6.9B parameters.
+## The identity
 
-## Install & use
+Let $\mathbf{H}$ be the hidden states at one layer, $\mathbf{s}$ the top right singular vector of
+the centered $\mathbf{H}$, and $\mathbf{C} = \mathbf{H}(\mathbf{I} - \mathbf{s}\mathbf{s}^\top)$ the
+residual. For any statistic $M$ of the form "exponential entropy of a normalized spectrum",
+
+$$M(\mathbf{H}) \;=\; e^{\,h_b(t)}\cdot M(\mathbf{C})^{\,1-t}$$
+
+where $h_b$ is the binary entropy and $t$ is the share of the spectrum carried by $\mathbf{s}$.
+This holds for every matrix. It reproduces measured effective rank to $2.9 \times 10^{-15}$
+relative error on all 4,743 records in [`data/rerun_long.csv`](data/rerun_long.csv).
+
+Effective rank normalizes eigenvalues, so $t = E_1$. RankMe normalizes singular values, so
+$t = \sigma_1 / \sum_i \sigma_i$. The second is never larger than the first, and that ordering
+decides the damage:
+
+| Pythia-1.4B, layer 5, step 143,000 | share $t$ | raw | residual | distortion |
+|---|---|---|---|---|
+| effective rank | **0.853** | 4.2 | 1023.2 | **243×** |
+| RankMe         | **0.058** | 1470.4 | 1820.0 | **1.24×** |
+
+Over training, raw effective rank falls by 105× at this layer while the residual grows by 2.1×.
+RankMe never collapses, and its raw trajectory still points the wrong way at two of the three
+scales we measured.
+
+## Install and use
 
 ```bash
 pip install -r requirements.txt
 ```
 
 ```python
-from desink import desink, spectral_metrics
+from desink import desink, spectral_metrics, sink_strength, identity_check
 
-H_ds = desink(H)               # H: (n_tokens, d_model) at any layer
-spectral_metrics(H)            # raw  -- contaminated
-spectral_metrics(H_ds)         # de-sinked -- corrected
+H = load_hidden_states()          # (n_tokens, d_model) at one layer, sequences stacked in order
+C = desink(H)                     # H - (H @ s)[:, None] * s
+
+spectral_metrics(H)               # raw
+spectral_metrics(C)               # residual
+sink_strength(H, seq_len=512)     # alpha, the position-0 norm ratio
+identity_check(H)                 # measured vs predicted effective rank
 ```
 
-The whole method is one line: `H_ds = H - (H @ s)[:, None] * s`, where `s` is PC1 of the centered `H`.
+A demonstration on random data with an injected sink, no model required:
 
-## Reproducing the paper
+```python
+import numpy as np
+rng = np.random.default_rng(0)
+H = rng.standard_normal((4096, 256)).astype("float32")
+H[::512] += 40 * rng.standard_normal(256).astype("float32")
 
-Each experiment is a standalone script in `experiments/`. Run any single artifact directly:
+spectral_metrics(H)["effective_rank"]           # 7.8
+spectral_metrics(desink(H))["effective_rank"]   # 247.1     <- 32x
+spectral_metrics(H)["rankme"]                   # 204.8
+spectral_metrics(desink(H))["rankme"]           # 253.0     <- 1.24x
+```
+
+One rank-one perturbation, and the same split the paper reports on real checkpoints.
+
+## Reproduce the paper
 
 ```bash
-python experiments/fig1_training_trajectory.py    # ~30 min on A100
-python experiments/tab2_contamination_audit.py    # ~20 min
-python experiments/tab3_fig4_scale_validation.py  # ≥40 GB GPU for Pythia-6.9B
+python build.py
 ```
 
-All models are public Hugging Face checkpoints (GPT-2, Pythia, OLMo-2, Qwen2.5). Total compute for the full paper: **~10 GPU-hours on a single A100**.
+Under a minute, no GPU, no downloads. It regenerates all four figures into `paper/figs/` and writes
+[`numbers.txt`](numbers.txt), which lists every quantity in the manuscript next to the file it came
+from. Diffing `numbers.txt` against the PDF is the fastest way to audit a claim.
 
-<details>
-<summary><strong>Full experiment ↔ paper map</strong></summary>
-
-**Main paper**
-
-| Script | Paper artifact |
-|---|---|
-| `fig1_training_trajectory.py`           | Figure 1(a,b) — $E_1$ / ER on 20 Pythia-70M checkpoints |
-| `fig1c_theorem_fit.py`                  | Figure 1(c) — Theorem 1 fit, $R^2 = 0.978$ |
-| `tab2_contamination_audit.py`           | Table 2 + Figure 2 — five published metrics audited |
-| `fig3_cka_heatmap.py`                   | Figure 3 — layer × layer CKA heatmaps |
-| `tab3_fig4_scale_validation.py`         | Table 3 + Figure 4 — scale validation, 70M → 6.9B |
-| `sec34_manufacture_and_qwen_audit.py`   | §3.4 synthetic sink injection + Table 3 Qwen2.5 row |
-| `sec5_dynamics_and_controls.py`         | §5 — Pythia-160M / 1.4B / OLMo-2 1B dynamics + ER↔probe correlation |
-| `fig5a_alignment_peak.py`               | Figure 5(a) — Pythia alignment peak |
-| `fig5a_olmo_alignment.py`               | Figure 5(a) — OLMo-2 1B validation |
-| `fig5b_perlayer_departure.py`           | Figure 5(b) — inverted-U per-layer departure |
-| `fig6_capability_vs_sink.py`            | Figure 6 — capability vs sink growth |
-| `sec7_sink_emergence.py`                | §7 — sink formation across training |
-
-**Controls and appendices**
-
-| Script | Paper artifact |
-|---|---|
-| `controls_random_direction.py`          | §8 — matched-random direction control |
-| `controls_abt_comparison.py`            | §8 — All-but-the-Top vs de-sinking |
-| `controls_spectral_gap.py`              | §8 — eigenvalue gap analysis |
-| `app_b_probing.py`                      | Appendix B — probing on Pythia-70M (large-scale) |
-| `app_b_probing_multi.py`                | Appendix B — probing across three models |
-| `app_d_sink_geometry.py`                | Appendix D — sink ↔ unembedding geometry |
-| `app_negative_pruning.py`               | Appendix C — layer pruning (negative result) |
-| `app_negative_lora.py`                  | Appendix C — LoRA layer selection (inconclusive) |
-| `app_negative_cross_cka.py`             | Appendix C — cross-model CKA |
-| `app_negative_distillation.py`          | Appendix C — distillation layer matching |
-
-</details>
+To rebuild the manuscript: `cd paper && tectonic -X compile main.tex`.
 
 ## Layout
 
 ```
-desink/         core.py          # de-sinking + spectral metrics (~80 LoC)
-experiments/                     # one script per paper artifact (see table above)
-paper/          main.tex
-                main.pdf
-                neurips_2026.sty
-                figs/            # vector PDF figures
+desink/         core.py            the projection and the five metrics, ~150 lines
+paper/          main.tex main.pdf  the manuscript, TMLR style; figs/ regenerated by build.py
+data/           rerun_long.csv     4,743 records: Pythia 160M/410M/1.4B and OLMo-2 1B,
+                                   every layer, 20 checkpoints, 3 disjoint corpus blocks
+                rerun_corpus_*     corpus provenance: source, SHA-256, distinct-token count,
+                                   duplicate-sequence check
+                *.json             the remaining runs quoted in the paper
+experiments/    *.py               one script per measurement
+experiments/rerun/                 the 8-GPU orchestration behind rerun_long.csv
+build.py        numbers.txt        figures and numbers, regenerated from data/
 ```
 
----
+## Experiment map
+
+| Script | What it measures | Paper |
+|---|---|---|
+| `rerun/` | training dynamics, 4 models, all layers, 20 checkpoints, 3 blocks | Fig. 1-3, Tab. 1-3, 7 |
+| `sink_identification.py` | position-0 mass and $\alpha$ of the leading direction | Tab. 1 |
+| `pythia70m_trajectory.py` | Pythia-70M trajectory under the earlier protocol | App. B |
+| `sink_emergence.py` | when the sink forms, 19 checkpoints | App. B |
+| `five_metric_audit.py` | $E_1$, rogue dims, RankMe, anisotropy, CKA on GPT-2 and Pythia-70M | Tab. 4 |
+| `cka_heatmap.py` | layer by layer CKA, raw and residual | Fig. 4 |
+| `scale_validation.py` | GPT-2-XL and Pythia-6.9B, all layers | Tab. 5 |
+| `sink_injection_and_qwen.py` | synthetic rank-one injection; Qwen2.5-1.5B audit | Tab. 8, Tab. 5 |
+| `probing.py` | linear probing with 5 random-direction controls | Tab. 6 |
+| `spectral_gap.py` | $\sigma_1/\sigma_2$ by layer | Sec. 4, App. B |
+| `position0_perplexity.py` | position-0 ablation against a matched-random control | Sec. 7 |
+| `downstream_{pruning,distillation,cross_cka}.py` | decisions that use relative layer ordering | Sec. 7 |
+
+All models are public Hugging Face checkpoints. Total compute for every measurement in the paper is
+under 40 GPU-hours.
+
+## Data provenance
+
+Every number comes from natural text. The dynamics corpus ships with its source, its SHA-256 prefix
+`66f376629b477962`, its distinct-token count (28,552) and a duplicate-sequence check (0). Scripts
+raise on a corpus-loading failure, and abort when a measured effective rank at initialization falls
+below $d/25$.
+
+An earlier round of these experiments measured Pythia-160M and Pythia-1.4B through a loader whose
+exception handler silently replaced the corpus with 200 copies of one template sentence. Effective
+rank at initialization was near 10 for a 768-dimensional model, the signature of about ten distinct
+token types. Those runs and every number derived from them are withdrawn. The affected measurements
+were re-run at three model scales with three disjoint corpus blocks; Sections 4 and 5 of the paper
+report the replacements and Appendix C states the failure. Scripts that produced only withdrawn
+numbers were deleted from the working tree and remain in the git history.
+
+## Citation
+
+```bibtex
+@article{desink2026,
+  title = {Spectral Metrics of Transformer Training Are Determined by a Single Direction},
+  year  = {2026},
+  note  = {Under review at TMLR}
+}
+```
 
 Released under the [MIT License](LICENSE).

@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+title: >-
+  Spectral Metrics of Transformer Training Are Determined by a
+  Single Direction
+message: If you use this software or its findings, please cite it.
+type: software
+repository-code: https://github.com/kaminoguo/desink
+license: MIT
+abstract: >-
+  Effective rank, RankMe, E1, CKA and anisotropy applied to
+  transformer hidden states are determined by one direction
+  through an exact identity. The direction is the attention
+  sink. This repository contains the method, the manuscript,
+  and the data behind every number in it.
+keywords:
+  - attention sink
+  - effective rank
+  - representation geometry
+  - training dynamics

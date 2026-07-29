@@ -1,6 +1,10 @@
+# core method and build.py
+numpy>=1.24
+scipy>=1.10
 torch>=2.0
-transformers>=4.35
-datasets
-numpy
-scipy
-scikit-learn
+matplotlib>=3.7
+
+# only needed to re-run experiments/ against real checkpoints
+transformers>=4.40
+datasets>=2.14
+scikit-learn>=1.3
