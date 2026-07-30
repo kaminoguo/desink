@@ -1,0 +1,116 @@
+================================================================================
+TMLR SUBMISSION FORM  --  copy each block into the matching field
+https://openreview.net/group?id=TMLR
+================================================================================
+
+
+--------------------------------------------------------------------------------
+[1] Title*        (TeX supported; none needed)
+--------------------------------------------------------------------------------
+Spectral Metrics of Transformer Training Are Determined by a Single Direction
+
+
+--------------------------------------------------------------------------------
+[2] Abstract*     (TeX supported, and this uses it. Paste verbatim.)
+--------------------------------------------------------------------------------
+Effective rank, RankMe, the leading eigenvalue share $E_1$, CKA and anisotropy are used to describe how transformer representations change during pretraining. We show that one direction fixes the value of the rank statistics among them. For any statistic that takes the exponential entropy of a normalized spectrum, removing the top eigendirection $\mathbf{s}$ from the hidden states $\mathbf{H}$ gives the identity $M(\mathbf{H}) = e^{h_{\mathrm{b}}(t)}M(\mathbf{C})^{1-t}$, where $\mathbf{C}$ is the residual and $t$ is the share of the spectrum that $\mathbf{s}$ carries. It reproduces effective rank to $3\times10^{-15}$ relative error on all 4,743 measurements we hold: Pythia at 160M, 410M and 1.4B over 20 checkpoints, OLMo-2 1B over 13, every layer of each, three corpus blocks, plus a sample-size sweep. Because effective rank normalizes eigenvalues while RankMe normalizes singular values, the two receive different shares, and we prove that RankMe's is never the larger of the two. That ordering decides the damage: at the peak layer of Pythia-1.4B a single direction holds 85 percent of the eigenvalue mass but 6 percent of the singular-value mass, and distorts the two statistics by $243\times$ and $1.24\times$. The direction is the attention sink, which acquires that role during training, ending with roughly half its energy on the $1/512$ of tokens at position 0; its strength alone accounts for 94 to 97 percent of the variance in $E_1$. Projecting it out turns a $105\times$ collapse in effective rank into $2.1\times$ growth, leaves the raw RankMe trajectory pointing the wrong way at two of three scales, and leaves one early transient that OLMo-2 reproduces. OLMo-2 grows no sink over its first 76B tokens, and there the raw and residual metrics differ by a median of 3.5 percent against $32\times$ to $243\times$ in Pythia, which separates the sink from the projection used to study it. Because entropy-based ranks have not converged at 524,288 tokens, we report ratios at a fixed token count and never an absolute rank.
+
+
+--------------------------------------------------------------------------------
+[3] Authors*      already filled: LIU YUCHEN
+--------------------------------------------------------------------------------
+Add any co-authors now. Every author needs an OpenReview profile, and the
+profile's affiliation and coauthor history is what OpenReview uses to compute
+conflicts and to route the paper to an Action Editor, so check yours is current
+before submitting.
+
+
+--------------------------------------------------------------------------------
+[4] PDF*
+--------------------------------------------------------------------------------
+/Users/gogogod/Project/my_paper/desink/paper/main.pdf
+(19 pages: 12 main content, references p.13, appendices p.15-19.
+ TMLR stylefile unmodified, anonymous, compiles with zero warnings.)
+
+
+--------------------------------------------------------------------------------
+[5] Beyond PDF    LEAVE EMPTY
+--------------------------------------------------------------------------------
+This field is only for interactive-webpage submissions. The form warns
+explicitly: do not put supplementary material or LaTeX source here.
+
+
+--------------------------------------------------------------------------------
+[6] Submission Type*
+--------------------------------------------------------------------------------
+Regular submission (no more than 12 pages of main content)
+
+  Main content is exactly 12 pages: references begin at the top of page 13, and
+  the only thing on that page before them is the running header. The Regular
+  limit is 12 pages or fewer, so Regular is correct.
+
+
+--------------------------------------------------------------------------------
+[7] Supplementary Material
+--------------------------------------------------------------------------------
+/Users/gogogod/Project/my_paper/desink/supplementary.zip
+(960 KB, 69 files, self-contained, single zip, well under the 100 MB limit)
+
+  The form states supplementary material is visible to reviewers AND the public
+  during and after review. This archive was swept for names, hosts, mail
+  addresses, absolute paths and credentials: zero hits.
+
+
+--------------------------------------------------------------------------------
+[8] Previous TMLR Submission Url        LEAVE EMPTY
+--------------------------------------------------------------------------------
+This field is for a prior *TMLR* submission. There is none. A withdrawn
+submission to another venue does not go here.
+
+
+--------------------------------------------------------------------------------
+[9] Changes Since Last Submission       LEAVE EMPTY
+--------------------------------------------------------------------------------
+Only applies when [8] is filled.
+
+
+--------------------------------------------------------------------------------
+[10] Competing Interests*
+--------------------------------------------------------------------------------
+N/A
+
+  Before you paste that: the question covers donated hardware or cloud compute
+  in the last 36 months. GPU time that was rented and paid for is not a
+  competing interest. If any of the compute for this paper came as credits, a
+  grant, or free access from a provider, replace N/A with one sentence naming
+  the provider and what was received.
+
+
+--------------------------------------------------------------------------------
+[11] Human Subjects Reporting*
+--------------------------------------------------------------------------------
+N/A
+
+
+--------------------------------------------------------------------------------
+[12] License*     fixed by the venue
+--------------------------------------------------------------------------------
+CC BY 4.0. Not optional at TMLR, and it applies from submission onward.
+
+
+--------------------------------------------------------------------------------
+[13] Event Certifications               LEAVE ALL UNCHECKED
+--------------------------------------------------------------------------------
+Those entries are journal tracks for other venues and certifications awarded by
+reviewers. Nothing to opt into here.
+
+
+================================================================================
+NOTHING LEFT TO DECIDE
+================================================================================
+
+Main content was 14 pages; five tables that duplicated their own prose or carried
+provenance moved to Appendix B, one paragraph that duplicated Section 6.4 was cut,
+and Related Work and the Conclusion were tightened. Nothing was removed from the
+argument and no result left the paper. Main content is now 12 pages, so tick
+Regular and the review runs on the normal clock.
