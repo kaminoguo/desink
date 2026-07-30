@@ -24,7 +24,11 @@ from scipy.stats import pearsonr
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
+# figures live next to the manuscript in the full repository and at the top level
+# in the anonymous supplementary package; write wherever the layout puts them.
 FIGS = os.path.join(HERE, "paper", "figs")
+if not os.path.isdir(os.path.join(HERE, "paper")):
+    FIGS = os.path.join(HERE, "figs")
 os.makedirs(FIGS, exist_ok=True)
 
 RAW = "#D55E00"      # Okabe-Ito vermillion
