@@ -136,7 +136,7 @@ Let $p = \lambda_1/\sum_i \lambda_i$ and $r = \sigma_1/\sum_i \sigma_i$ with $\s
 \label{eq:order}
 \frac{p}{r} \;=\; \frac{\sigma_1 \sum_i \sigma_i}{\sum_i \sigma_i^2} \;\ge\; 1 ,
 \end{equation}
-with equality only when the spectrum has a single nonzero entry.
+with equality if and only if every nonzero singular value equals $\sigma_1$, that is, the spectrum is flat on its support.
 \end{lemma}
 
 \subsection{The identities}
@@ -262,6 +262,8 @@ OLMo-2 1B & L3 & 1.01 & \multicolumn{1}{c}{1.18$^\dagger$} & 0.008 & \multicolum
 \end{table}
 
 Table~\ref{tab:sink} tracks the direction across checkpoints. At initialization it places a tenth of a percent of its mass on position~0 and $\alpha$ sits near $1.2$, so it is ordinary content variance and $E_1(\bH)$ agrees with $E_1(\bC)$ to two digits. By the end of training the same direction carries about half its energy on the $1/512$ of tokens at position~0, a 250-fold enrichment, and $\alpha$ has reached $19.5$ at 160M and $44.7$ at 410M. $E_1(\bC)$ meanwhile never leaves the interval $[0.028, 0.048]$ in any of the three models. A residual that stays this diffuse is what makes Equation~\ref{eq:proj} a clean split; the projection is not rebalancing two components of comparable size.
+
+\paragraph{Attention concentrates on the same position.} Norm and variance at position~0 identify a massive-activation direction; the name attention sink also asks for attention mass. Over 19 Pythia-70M checkpoints, mean attention to position~0 at L3 rises from $0.013$ to $0.135$, a factor of ten, and ranks with $\alpha$ at Spearman $0.725$ ($p = 4.5\times10^{-4}$). Both are flat until step~1{,}000 and both climb afterwards.
 
 \paragraph{Where the identification holds.} The identification needs a spectral gap. In GPT-2 the ratio $\sigma_1/\sigma_2$ sits near $14.7$ across L2 to L4 and falls to $1.1$ at L0 and $3.0$ at L11. In Qwen2.5-1.5B it reaches $154$ at L2. Where the gap is near~1 the leading direction is not separated from content directions and $\bs$ should not be read as the sink. We report the gap alongside every layer-level claim and treat $\sigma_1/\sigma_2 > 3$ as the condition under which the identification is meaningful.
 
@@ -408,6 +410,15 @@ Proposition~\ref{prop:aniso} splits anisotropy into a sink term and a residual t
 
 \begin{figure}[t]
 \centering
+\includegraphics[width=\textwidth]{figs/fig5_shared_factor.pdf}
+\caption{\textbf{A contiguous band of layers shares one left factor.} Final checkpoint, mean over three corpus blocks, depth normalized so the three models overlay.
+\textbf{(a)}~Position-0 mass of the leading direction. Inside the band it is constant to within $0.03$; outside it falls below $0.05$. This is the hypothesis Proposition~\ref{prop:cka} needs.
+\textbf{(b)}~$E_1$ over the same layers, for reference. The two profiles have the same support.}
+\label{fig:shared}
+\end{figure}
+
+\begin{figure}[t]
+\centering
 \includegraphics[width=\textwidth]{figs/fig4_cka.pdf}
 \caption{\textbf{Raw CKA reports one shared direction.} GPT-2, 22{,}819 WikiText-2 tokens.
 \textbf{(a)}~Raw CKA marks L2 through L11 as indistinguishable at $\CKA \ge 0.995$.
@@ -416,7 +427,9 @@ Proposition~\ref{prop:aniso} splits anisotropy into a sink term and a residual t
 \label{fig:cka}
 \end{figure}
 
-Proposition~\ref{prop:cka} predicts that two layers sharing one high-norm rank-one term have $\CKA \to 1$. Figure~\ref{fig:cka} shows the prediction in GPT-2: raw CKA rates L2 through L11 as indistinguishable, and after the projection the same block shows a monotone decay in depth. The off-diagonal mean falls from $0.703$ to $0.610$ and the largest single change is $-0.569$, at the L2-L11 pair that raw CKA rated most similar. In Pythia-70M the off-diagonal mean rises from $0.360$ to $0.444$, with the largest change $+0.474$ at L4-L6. The direction of the aggregate change is not stable across models; the layer-pair structure is what changes.
+Proposition~\ref{prop:cka} asks two layers to share one high-norm rank-one term. Figure~\ref{fig:shared} measures that. At the final checkpoint of each Pythia model the position-0 mass of the leading direction holds constant to within $0.03$ across a contiguous band of layers: $0.39$ to $0.44$ over L4 to L10 at 160M, $0.57$ to $0.65$ over L6 to L23 at 410M. Outside the band it falls below $0.05$. Eighteen consecutive layers that place the same $57$ percent of their leading direction's energy on the same rows share a left factor, and the band has the shape that raw CKA reports as one indistinguishable block.
+
+Figure~\ref{fig:cka} shows what that does to CKA in GPT-2. Raw CKA rates L2 through L11 as indistinguishable, and after the projection the same block shows a monotone decay in depth. The off-diagonal mean falls from $0.703$ to $0.610$ and the largest single change is $-0.569$, at the L2-L11 pair that raw CKA rated most similar. In Pythia-70M the off-diagonal mean rises from $0.360$ to $0.444$, with the largest change $+0.474$ at L4-L6. The direction of the aggregate change is not stable across models; the layer-pair structure is what changes.
 
 \subsection{Larger models produce larger distortion figures, partly by construction}
 
@@ -462,11 +475,11 @@ L6 & 0.4\%  & $30.92 \pm 0.49$ & $43.05 \pm 0.28$ & $\mathbf{+12.13}$ & $+0.45$ 
 \end{tabular}
 \end{table}
 
-\paragraph{The direction carries no probeable information where it dominates.} Table~\ref{tab:probe} reports linear probing on Pythia-70M. At L3 and L4, where the leading direction holds 63 to 65 percent of the variance, removing it changes accuracy by $0.04$ and $0.06$ points. Across L0 through L5 the largest change is $0.24$ points. A direction that holds most of the variance and none of the linearly decodable next-token information is a scaffold for the forward pass rather than a store of content, which agrees with \citet{barbero2025first} and \citet{zhang2025catch}.
+\paragraph{The direction carries no probeable information where it dominates.} Table~\ref{tab:probe} reports linear probing on Pythia-70M. At L3 and L4, where the leading direction holds 63 to 65 percent of the variance, removing it changes accuracy by $0.04$ and $0.06$ points. Across L0 through L5 the largest change is $0.24$ points. A direction that holds most of the variance and none of the next-token information a linear readout can use is a scaffold for the forward pass rather than a store of content, which is the reading of \citet{barbero2025first} and \citet{zhang2025catch}.
 
 L6, the output of the last block, is the exception and it is instructive. There the leading direction holds $0.4$ percent of the variance, the spectral gap implied by Table~\ref{tab:audit} is $1.4$, and removing it raises accuracy by $12.13$ points. By the scope rule of Section~\ref{sec:sink} that direction is not the sink. We report the number because it shows the projection doing something real at a layer where the sink identification fails, and we do not attribute the gain to the sink.
 
-\paragraph{The sink direction has no causal privilege at position~0.} We measured perplexity on Pythia-410M after removing the leading direction from the position-0 residual stream at one layer at a time, and compared against removing a random direction of the same magnitude, over 5 trials and 12 evaluation sentences. Removing the leading direction raises perplexity by up to $49\times$ over a baseline of $20.4$, averaging $17.8\times$ across the 24 layers. The matched-random control averages $42.9\times$ and exceeds the leading direction at 13 of 24 layers. Position~0 is fragile to perturbation of any direction, and this experiment does not establish that the sink direction in particular is load-bearing.
+\paragraph{The sink direction has no causal privilege at position~0.} We measured perplexity on Pythia-410M after removing the leading direction from the position-0 residual stream at one layer at a time, and compared against removing a random direction of the same magnitude, over 5 trials and 12 evaluation sentences. Removing the leading direction raises perplexity by up to $49\times$ over a baseline of $20.4$, averaging $17.8\times$ across the 24 layers. The matched-random control averages $42.9\times$ and exceeds the leading direction at 13 of 24 layers. Position~0 is fragile to a perturbation in any direction. The heading of this paragraph is the finding: whatever the sink does for the forward pass, a matched-magnitude random direction does more damage, so this experiment gives the sink no special causal status.
 
 \paragraph{Decisions that use relative layer ordering survive the contamination.} On Pythia-6.9B we ranked layers by Block Influence, the cosine distance between a layer's input and output residual stream, and pruned the 8 lowest. Pruning by raw scores gives perplexity $31.27$ and pruning by residual scores gives $33.81$, against $16.23$ for the full model. The two sets overlap in 7 of 8 layers. Distilling GPT-2 into a 6-layer student gives perplexity $5.57$ for even layer spacing, $6.31$ for raw CKA matching, and $6.01$ for residual CKA matching. Cross-model CKA between GPT-2 and Pythia-70M rises from a maximum of $0.016$ to $0.116$ after the projection, so the small cross-model similarity is not an artifact of a shared sink. The contamination distorts absolute values of spectral summaries and leaves the ordering of layers largely intact.
 
@@ -585,7 +598,7 @@ Write $S_1 = \sum_i \sigma_i$ and $S_2 = \sum_i \sigma_i^2$. Then $p = \sigma_1^
 \[
 S_2 = \sum_i \sigma_i^2 \le \sigma_1 \sum_i \sigma_i = \sigma_1 S_1 ,
 \]
-which gives $p/r \ge 1$. Equality requires $\sigma_i(\sigma_1 - \sigma_i) = 0$ for every $i$, that is, every nonzero singular value equals $\sigma_1$; combined with $\sigma_1$ being the largest, the spectrum is a single repeated value, and $p = r$ then forces one nonzero entry.
+which gives $p/r \ge 1$. Equality forces $\sum_i \sigma_i(\sigma_1 - \sigma_i) = 0$, and every summand is nonnegative, so $\sigma_i \in \{0, \sigma_1\}$ for each $i$. A flat spectrum with $k$ nonzero entries gives $p = r = 1/k$, so equality holds for every such spectrum and not only for $k=1$.
 \end{proof}
 
 \subsection{Spectrum of the residual}

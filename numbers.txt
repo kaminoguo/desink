@@ -22,6 +22,16 @@
         L3 ER raw 1008.4 (init) -> 111.0 (step 1000 dip, alpha 1.04) -> 1272.4 (step 36000)
 [Fig 4] GPT-2 CKA off-diagonal mean 0.703 -> 0.610; most negative change -0.569 at (L2,L11)
         Pythia-70M CKA off-diagonal mean 0.360 -> 0.444; largest change +0.474
+[Fig 5] position-0 mass of the leading direction by layer, step 143000:
+  Pythia-160M  band L4..L10 (7 of 13 layers), p0 mass 0.39 to 0.44, spread within band 0.019
+               outside the band: L0 0.00 L1 0.00 L2 0.04 L3 0.10 L11 0.01 L12 0.00
+  Pythia-410M  band L6..L23 (18 of 25 layers), p0 mass 0.57 to 0.65, spread within band 0.020
+               outside the band: L0 0.00 L1 0.00 L2 0.02 L3 0.01 L4 0.03 L5 0.01 L24 0.00
+  Pythia-1.4B  band L4..L23 (20 of 25 layers), p0 mass 0.38 to 0.51, spread within band 0.032
+               outside the band: L0 0.00 L1 0.00 L2 0.00 L3 0.08 L24 0.00
+[attention] Pythia-70M L3, 19 checkpoints, 200000 tokens: attn to position 0 0.0132 -> 0.1351 (10x)
+            Spearman(attn to position 0, alpha) = 0.725 (p = 4.5e-04)
+            per checkpoint: 1:0.013 2:0.013 4:0.013 8:0.013 16:0.013 32:0.013 64:0.013 128:0.011 256:0.006 512:0.005 1000:0.011 2000:0.033 4000:0.060 8000:0.071 16000:0.083 32000:0.116 64000:0.124 128000:0.138 143000:0.135
 
 ==============================================================================
 CORPUS (data/rerun_corpus_*.json)

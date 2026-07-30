@@ -328,6 +328,63 @@ def fig_cka():
         % (Ap[mp].mean(), Bp[mp].mean(), Dp.flatten()[np.abs(Dp).argmax()]))
 
 
+
+# ---------------------------------------------------------------------- Fig 5
+def fig_shared_factor():
+    """Proposition 5 assumes a band of layers shares one left factor. Test it."""
+    fig, ax = plt.subplots(1, 2, figsize=(6.6, 2.0))
+    cols = {"pythia-160m": DS, "pythia-410m": THIRD, "pythia-1.4b": RAW}
+    for m, (L, nl, d) in PEAK.items():
+        g = collections.defaultdict(list)
+        for r in sel("e1", m, step=143000):
+            g[int(r["layer"])].append(r)
+        Ls = sorted(g)
+        frac = [x / max(Ls) for x in Ls]
+        ax[0].plot(frac, [np.mean([q["p0_mass"] for q in g[x]]) for x in Ls],
+                   "o-", ms=2.5, lw=1.1, color=cols[m], label=NICE[m])
+        ax[1].plot(frac, [np.mean([q["E1_raw"] for q in g[x]]) for x in Ls],
+                   "o-", ms=2.5, lw=1.1, color=cols[m])
+    ax[0].axhline(0.2, color=GREY, lw=0.6, ls=":")
+    ax[0].set_ylabel("position-0 mass of $\\mathbf{s}$")
+    ax[1].set_ylabel(r"$E_1$")
+    for a, t in zip(ax, ["(a) the leading direction sits on position 0",
+                         r"(b) $E_1$ over the same layers"]):
+        a.set_xlabel("relative depth")
+        a.set_title(t, loc="left")
+    ax[0].legend(frameon=False, loc="center right")
+    fig.tight_layout(w_pad=1.6)
+    fig.savefig(os.path.join(FIGS, "fig5_shared_factor.pdf"))
+    plt.close(fig)
+
+    rec("[Fig 5] position-0 mass of the leading direction by layer, step 143000:")
+    for m, (L, nl, d) in PEAK.items():
+        g = collections.defaultdict(list)
+        for r in sel("e1", m, step=143000):
+            g[int(r["layer"])].append(r["p0_mass"])
+        v = {x: np.mean(y) for x, y in g.items()}
+        band = [x for x in sorted(v) if v[x] > 0.20]
+        inband = [v[x] for x in band]
+        rec("  %-12s band L%d..L%d (%d of %d layers), p0 mass %.2f to %.2f, spread within band %.3f"
+            % (NICE[m], band[0], band[-1], len(band), len(v),
+               min(inband), max(inband), np.std(inband)))
+        rec("               outside the band: " + " ".join(
+            "L%d %.2f" % (x, v[x]) for x in sorted(v) if x not in band))
+
+
+# ------------------------------------------------------- attention to position 0
+def attention_evidence():
+    d = load("pythia70m_sink_emergence.json")
+    ck = d["checkpoints"]
+    a = np.array([[x for x in c["layers"] if x["layer"] == 3][0]["attn_to_p0"] for c in ck])
+    nr = np.array([[x for x in c["layers"] if x["layer"] == 3][0]["norm_ratio"] for c in ck])
+    from scipy.stats import spearmanr
+    rec("[attention] Pythia-70M L3, %d checkpoints, %d tokens: attn to position 0 %.4f -> %.4f (%.0fx)"
+        % (len(ck), d["n_test_tokens"], a[0], a[-1], a[-1] / a[0]))
+    rec("            Spearman(attn to position 0, alpha) = %.3f (p = %.1e)"
+        % spearmanr(a, nr))
+    rec("            per checkpoint: " + " ".join("%d:%.3f" % (c["step"], v) for c, v in zip(ck, a)))
+
+
 # ------------------------------------------------------------------- numbers
 def tables():
     rec()
@@ -500,6 +557,8 @@ def main():
     fig_dynamics()
     fig_control()
     fig_cka()
+    fig_shared_factor()
+    attention_evidence()
     tables()
     with open(os.path.join(HERE, "numbers.txt"), "w") as f:
         f.write("\n".join(OUT) + "\n")
