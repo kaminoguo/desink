@@ -73,7 +73,9 @@ PC1 SPECIFICITY (data/rerun_t2_*.json, same corpus, 5 random directions)
 ==============================================================================
   Pythia-160M  L4  ER: baseline    11.0 | PC1   352.1 | PC2    10.5 | PC3    10.6 | random    10.9 +- 0.01
   Pythia-410M  L9  ER: baseline     2.3 | PC1   539.8 | PC2     2.3 | PC3     2.3 | random     2.3 +- 0.00
-  cross-implementation check, Pythia-160M L6: T2 gives 11.0 / 223.2, T1 gives 11.2 / 214.1
+  two implementations on the block they share (Pythia-160M L6, seed0):
+    T2 11.0358 / 223.2105   T1 11.0358 / 223.2105   relative difference 2.6e-07 / 1.7e-07
+    for reference, T1's own spread over its three blocks: ER 11.0 to 11.5, PC1 198.4 to 223.2
 
 ==============================================================================
 SAMPLE-SIZE DEPENDENCE (exp e3, Pythia-1.4B L5)
@@ -140,6 +142,26 @@ PROBING (data/probing_pythia70m.json)
   L4  sink var  62.7%  raw 42.24+-0.18  residual 42.31+-0.20  d_res +0.06  d_rand +0.03
   L5  sink var  25.3%  raw 43.85+-0.06  residual 43.74+-0.08  d_res -0.11  d_rand -0.03
   L6  sink var   0.4%  raw 30.92+-0.49  residual 43.05+-0.28  d_res +12.13  d_rand +0.45
+
+==============================================================================
+POSITION-0 ABLATION vs MATCHED RANDOM (data/pos0_matched_random.json)
+==============================================================================
+  Pythia-410M, 12 sentences, 5 random trials per layer, baseline perplexity 20.42
+  leading direction: mean 10.19 x over 24 layers, max 48.98 x at L5
+  matched random:    mean 24.10 x over the same layers
+  random does more damage than the leading direction at 21 of 24 layers
+  ratio of means (leading / random): 0.42
+
+==============================================================================
+DECISIONS THAT USE RELATIVE LAYER ORDERING
+==============================================================================
+  pruning (data/downstream_pruning.json), EleutherAI/pythia-6.9b, 8 of 32 layers removed:
+    perplexity: full 16.23 | ranked by raw scores 31.27 | ranked by residual scores 33.81
+    the two pruned sets overlap in 7 of 8 layers
+  distillation (data/downstream_distillation.json), gpt2 to 6 layers:
+    perplexity: even spacing 5.57 | raw CKA matching 6.31 | residual CKA matching 6.01
+  cross-model CKA (data/downstream_cross_cka.json), gpt2 vs EleutherAI/pythia-70m, 1600 tokens:
+    maximum CKA raw 0.0156 -> residual 0.1164
 
 ==============================================================================
 SINK IDENTIFICATION, first-submission run (data/sink_identification.json)

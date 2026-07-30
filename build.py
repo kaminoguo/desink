@@ -98,6 +98,10 @@ cka = load("cka_heatmaps.json")
 ident = load("sink_identification.json")
 gap_g2 = load("gap_gpt2.json")
 probe = load("probing_pythia70m.json")
+pos0 = load("pos0_matched_random.json")
+dprune = load("downstream_pruning.json")
+ddist = load("downstream_distillation.json")
+dcka = load("downstream_cross_cka.json")
 t2 = {"pythia-160m": load("rerun_t2_160m.json"), "pythia-410m": load("rerun_t2_410m.json")}
 traj70 = load("pythia70m_trajectory.json")
 
@@ -455,10 +459,16 @@ def tables():
             % (NICE[m], L, lay["baseline"]["ER"], lay["pc1"]["ER"], lay["pc2"]["ER"],
                lay["pc3"]["ER"], np.mean(rnd), np.std(rnd)))
     lay = [x for x in t2["pythia-160m"]["layers"] if x["layer"] == 6][0]
-    g = sel("e1", "pythia-160m", 6, 143000)
-    rec("  cross-implementation check, Pythia-160M L6: T2 gives %.1f / %.1f, T1 gives %.1f / %.1f"
-        % (lay["baseline"]["ER"], lay["pc1"]["ER"],
-           np.mean([x["ER_raw"] for x in g]), np.mean([x["ER_ds"] for x in g])))
+    b0 = [x for x in sel("e1", "pythia-160m", 6, 143000) if x["block"] == "seed0"][0]
+    rec("  two implementations on the block they share (Pythia-160M L6, seed0):")
+    rec("    T2 %.4f / %.4f   T1 %.4f / %.4f   relative difference %.1e / %.1e"
+        % (lay["baseline"]["ER"], lay["pc1"]["ER"], b0["ER_raw"], b0["ER_ds"],
+           abs(lay["baseline"]["ER"] / b0["ER_raw"] - 1), abs(lay["pc1"]["ER"] / b0["ER_ds"] - 1)))
+    rec("    for reference, T1's own spread over its three blocks: ER %.1f to %.1f, PC1 %.1f to %.1f"
+        % (min(x["ER_raw"] for x in sel("e1", "pythia-160m", 6, 143000)),
+           max(x["ER_raw"] for x in sel("e1", "pythia-160m", 6, 143000)),
+           min(x["ER_ds"] for x in sel("e1", "pythia-160m", 6, 143000)),
+           max(x["ER_ds"] for x in sel("e1", "pythia-160m", 6, 143000))))
 
     rec()
     rec("=" * 78)
@@ -539,6 +549,42 @@ def tables():
         rec("  L%d  sink var %5.1f%%  raw %.2f+-%.2f  residual %.2f+-%.2f  d_res %+.2f  d_rand %+.2f"
             % (L["layer"], L["sink_var_pct"], L["raw_test_mean"], L["raw_test_std"],
                L["desink_test_mean"], L["desink_test_std"], L["delta_desink"], L["delta_rand"]))
+
+
+    rec()
+    rec("=" * 78)
+    rec("POSITION-0 ABLATION vs MATCHED RANDOM (data/pos0_matched_random.json)")
+    rec("=" * 78)
+    base = pos0["baseline_ppl"]
+    car = {x["layer"]: x["ratio"] for x in pos0["carrier_results"]}
+    rnd = {int(L): np.array(v, float) for L, v in pos0["random_results"].items()}
+    cl = np.array([car[L] for L in sorted(car)])
+    rl = np.array([rnd[L].mean() for L in sorted(rnd)])
+    rec("  Pythia-410M, 12 sentences, 5 random trials per layer, baseline perplexity %.2f" % base)
+    rec("  leading direction: mean %.2f x over %d layers, max %.2f x at L%d"
+        % (cl.mean(), len(cl), cl.max(), int(np.argmax(cl))))
+    rec("  matched random:    mean %.2f x over the same layers" % rl.mean())
+    rec("  random does more damage than the leading direction at %d of %d layers"
+        % (int((rl > cl).sum()), len(cl)))
+    rec("  ratio of means (leading / random): %.2f" % (cl.mean() / rl.mean()))
+
+    rec()
+    rec("=" * 78)
+    rec("DECISIONS THAT USE RELATIVE LAYER ORDERING")
+    rec("=" * 78)
+    rec("  pruning (data/downstream_pruning.json), %s, %d of %d layers removed:"
+        % (dprune["model"], dprune["n_pruned"], dprune["n_layers"]))
+    rec("    perplexity: full %.2f | ranked by raw scores %.2f | ranked by residual scores %.2f"
+        % (dprune["ppl_full"], dprune["ppl_raw_pruned"], dprune["ppl_ds_pruned"]))
+    rec("    the two pruned sets overlap in %d of %d layers"
+        % (len(set(dprune["prune_raw"]) & set(dprune["prune_ds"])), dprune["n_pruned"]))
+    rec("  distillation (data/downstream_distillation.json), %s to %d layers:"
+        % (ddist["teacher"], ddist["n_student"]))
+    rec("    perplexity: even spacing %.2f | raw CKA matching %.2f | residual CKA matching %.2f"
+        % (ddist["ppl_even"], ddist["ppl_raw"], ddist["ppl_ds"]))
+    rec("  cross-model CKA (data/downstream_cross_cka.json), %s, %d tokens:"
+        % (" vs ".join(dcka["models"]), dcka["n_tokens"]))
+    rec("    maximum CKA raw %.4f -> residual %.4f" % (dcka["raw_cka_max"], dcka["ds_cka_max"]))
 
     rec()
     rec("=" * 78)

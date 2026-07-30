@@ -76,3 +76,27 @@ def main(paths):
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:] or glob.glob("results/e[123]_*.json")))
+
+
+def check_init_effective_rank(records):
+    """Refuse a run whose step-0 effective rank is too small for its width.
+
+    A corpus collapsed to a handful of distinct tokens shows up here first: a
+    768-dimensional model reported ER ~ 10 at initialization in the round this
+    replaces.  A randomly initialized model measured on natural text sits at a
+    large fraction of d, so d/25 is a floor with a wide margin, not a threshold.
+    """
+    bad = []
+    for r in records:
+        if int(r["step"]) != 0 or r.get("exp") != "e1":
+            continue
+        d, er = float(r["d"]), float(r["ER_raw"])
+        if er < d / 25.0:
+            bad.append((r["model"], r["layer"], er, d))
+    if bad:
+        raise SystemExit(
+            "ABORT: effective rank at initialization is below d/25 for %d "
+            "(model, layer) pairs, e.g. %s. The corpus is almost certainly "
+            "degenerate; check build_corpus.py output before trusting anything."
+            % (len(bad), bad[:3]))
+    return len(records)
