@@ -9,7 +9,25 @@
 \usepackage[utf8]{inputenc}
 \usepackage{enumitem}
 \usepackage{url}
+\usepackage{placeins}
 
+% Float placement. The defaults allow two floats per page and centre a float
+% that lands on a page of its own, which strands the appendix tables.
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.75}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\floatpagefraction}{0.72}
+\setcounter{topnumber}{3}
+\setcounter{totalnumber}{4}
+\makeatletter
+\setlength{\@fptop}{0pt}          % a float page starts at the top, not centred
+\makeatother
+
+% Section 3 states nine results back to back. amsthm's default spacing packs
+% them into a wall; this is the plain style with room to breathe between them.
+\newtheoremstyle{spaced}{7pt plus 2pt minus 1pt}{7pt plus 2pt minus 1pt}%
+  {\itshape}{}{\bfseries}{.}{5pt plus 1pt minus 1pt}{}
+\theoremstyle{spaced}
 \newtheorem{proposition}{Proposition}
 \newtheorem{lemma}{Lemma}
 \newtheorem{corollary}{Corollary}
@@ -68,9 +86,9 @@ Which $t$ enters depends on the statistic. Effective rank normalizes eigenvalues
 
 \paragraph{Contributions.}
 \begin{enumerate}[leftmargin=1.4em,itemsep=1pt,topsep=2pt]
-\item Section~\ref{sec:algebra} proves the identity for effective rank and RankMe, decomposes anisotropy, bounds CKA's homogenization, and proves the ordering $r \le p$ between the two rank shares. The effective-rank instance reproduces measurement to $3\times10^{-15}$ on 4{,}743 records and the ordering is never violated.
+\item Section~\ref{sec:algebra} proves the identity for effective rank and RankMe, decomposes anisotropy, bounds CKA's homogenization, and proves the ordering $r \le p$ between the two rank shares. The effective-rank instance reproduces measurement to $2.9\times10^{-15}$ on 4{,}743 records and the ordering is never violated.
 \item The ordering predicts a split that Table~\ref{tab:split} confirms. One direction at the peak layer of Pythia-1.4B takes $85$ percent of the eigenvalue mass and $6$ percent of the singular-value mass, and distorts the two statistics by $243\times$ and $1.24\times$.
-\item The distortion ratio is bounded above by the residual value, which grows with model width. Distortion factors quoted for models of different sizes are therefore not comparable, and the $700\times$ figures in the literature are partly a statement about $d$.
+\item The distortion ratio is bounded above by the residual value, which grows with model width. Distortion factors quoted at different model sizes are therefore not comparable: the largest we measure, $733\times$ at Pythia-6.9B, sits under a cap of $1298$ that neither $1.5$B model in Table~\ref{tab:scale} can reach.
 \item Across Pythia at three scales the direction ends up carrying about half its energy on the $1/512$ of tokens at position~0, and its strength alone accounts for $94$ to $97$ percent of the variance in $E_1$. Raw effective rank falls by $21\times$ to $119\times$ while the residual grows.
 \item OLMo-2 1B forms no sink in its first 76B tokens. There raw and residual metrics differ by a median of $3.5$ percent, against $32\times$ to $243\times$ in Pythia, which is the control the argument needs: the gap follows sink strength and not the projection.
 \end{enumerate}
@@ -89,15 +107,15 @@ The propositions in Section~\ref{sec:algebra} are elementary. Their consequence 
 \Hexp(\bw) \;=\; \exp\Big(-\sum_{i=1}^{m} \tilde{w}_i \log \tilde{w}_i\Big), \qquad \tilde{w}_i = w_i / \textstyle\sum_j w_j ,
 \end{equation}
 with $0\log 0 = 0$. The five summaries this paper studies are
-\begin{align}
-E_1(\bH) &= \lambda_1 / V , &
-\ER(\bH) &= \Hexp(\lambda_1,\dots,\lambda_d) , &
-\RankMe(\bH) &= \Hexp(\sigma_1,\dots,\sigma_d) , \label{eq:defs1}
-\end{align}
 \begin{equation}
+\label{eq:defs}
+\begin{gathered}
+E_1(\bH) = \lambda_1 / V , \qquad
+\ER(\bH) = \Hexp(\lambda_1,\dots,\lambda_d) , \qquad
+\RankMe(\bH) = \Hexp(\sigma_1,\dots,\sigma_d) , \\[4pt]
 \rho(\bH) = \frac{1}{n(n-1)}\sum_{i \ne j} \frac{\langle \bH_i, \bH_j\rangle}{\|\bH_i\|\,\|\bH_j\|}, \qquad
 \CKA(\bX,\bY) = \frac{\|\bX^\top \bY\|_F^2}{\|\bX^\top\bX\|_F \, \|\bY^\top\bY\|_F} .
-\label{eq:defs2}
+\end{gathered}
 \end{equation}
 Here $\bH_i$ is the $i$-th row of $\bH$, $\rho$ is the anisotropy of \citet{ethayarajh2019contextual}, and $\CKA$ is linear centered kernel alignment \citep{kornblith2019similarity} for column-centered $\bX \in \mathbb{R}^{n \times d_1}$ and $\bY \in \mathbb{R}^{n \times d_2}$. Effective rank \citep{roy2007effective} and RankMe \citep{garrido2023rankme} apply the same functional to different inputs: the training-dynamics literature feeds $\Hexp$ normalized eigenvalues and the self-supervised-learning literature feeds it normalized singular values. We keep both conventions and label them separately, because Section~\ref{sec:algebra} shows the choice decides how much damage one direction can do.
 
@@ -233,6 +251,7 @@ Table~\ref{tab:split} reads the split off the converged checkpoints. At Pythia-1
 A reported change in any of these quantities adds nothing to a report of the corresponding share and the residual value. What is left to explain is why the share moves, which is the subject of the next two sections.
 
 %======================================================================
+\FloatBarrier   % Table 2 belongs to this section, not above its heading
 \section{The leading direction is the attention sink}
 \label{sec:sink}
 
@@ -457,7 +476,6 @@ Reporting practice follows. Quote effective rank next to $E_1$, $\ER(\bC)$ and t
 \bibliographystyle{tmlr}
 \bibliography{references}
 
-\newpage
 \appendix
 
 %======================================================================
@@ -542,6 +560,7 @@ Replacing $\bs$ by $\bv_k$ in Lemma~\ref{lem:resid} gives a residual covariance 
 \end{proof}
 
 %======================================================================
+\FloatBarrier   % keep the tables of this appendix out of the proofs above
 \section{Additional measurements}
 \label{app:extra}
 

@@ -147,6 +147,44 @@ def label_at(ax, x, y, text, colour, dx=0.0, dy=0.0, fontsize=7.0, ha="left"):
                 va="center", ha=ha, annotation_clip=False)
 
 
+def label_curves(ax, curves, xrange=None, fontsize=6.8, pad=7.5):
+    """Name each curve at the x where it has the most room, on the roomier side.
+
+    ``curves`` is a list of ``(text, x, y, colour)``; the x grids need not agree,
+    since the curves are resampled onto a common one to compare them. Putting
+    every label at one x is what makes them collide when the curves run close
+    together, so this picks each label its own x and its own side.
+    """
+    xs = np.linspace(max(np.min(c[1]) for c in curves),
+                     min(np.max(c[1]) for c in curves), 400)
+    ys = [np.interp(xs, np.asarray(c[1], float), np.asarray(c[2], float))
+          for c in curves]
+    lo, hi = ax.get_ylim()
+    ok = (np.ones(len(xs), bool) if xrange is None
+          else (xs >= xrange[0]) & (xs <= xrange[1]))
+    mid = 0.5 * (xs[ok].min() + xs[ok].max())
+
+    for k, (text, _, _, colour) in enumerate(curves):
+        yk = ys[k]
+        others = [ys[j] for j in range(len(ys)) if j != k]
+        above = (np.minimum.reduce([np.where(o > yk, o, hi) for o in others])
+                 if others else np.full(len(xs), hi))
+        below = (np.maximum.reduce([np.where(o < yk, o, lo) for o in others])
+                 if others else np.full(len(xs), lo))
+        up, dn = np.minimum(above, hi) - yk, yk - np.maximum(below, lo)
+        room = np.maximum(up, dn)
+        room[~ok] = -np.inf
+        # Among the positions that are near-best, take the most central one:
+        # ties are common on a plateau, and the edges are where labels overflow.
+        near = np.flatnonzero(room >= 0.97 * room.max())
+        i = int(near[np.argmin(np.abs(xs[near] - mid))])
+        top = up[i] >= dn[i]
+        ax.annotate(text, xy=(xs[i], yk[i]), xycoords="data",
+                    xytext=(0, pad if top else -pad), textcoords="offset points",
+                    color=colour, fontsize=fontsize, ha="center",
+                    va="bottom" if top else "top", annotation_clip=False)
+
+
 def hero(ax, text, sub=None, loc=(0.97, 0.06)):
     """A number that is itself the finding, set large and quiet in the corner."""
     ax.text(loc[0], loc[1], text, transform=ax.transAxes, ha="right", va="bottom",

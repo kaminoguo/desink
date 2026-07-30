@@ -266,8 +266,6 @@ def fig_control():
     ax[0].set_xlabel("training step")
     ax[0].set_ylabel(r"$E_1$")
     ax[0].set_title(r"(a)  raw (solid) and residual (dotted)", color=INK)
-    ax[0].annotate("residual stays flat\nwhile raw climbs", xy=(0.30, 0.62),
-                   xycoords="axes fraction", ha="center", fontsize=6.8, color=fs.MUTED)
     for i, (m, (L, nl, d)) in enumerate(PEAK.items()):
         ax[0].text(0.045, 0.955 - 0.085 * i, NICE[m], transform=ax[0].transAxes,
                    color=ramp[m], fontsize=7, va="top")
@@ -297,8 +295,9 @@ def fig_control():
     ax[2].set_xlabel("training step")
     ax[2].set_ylabel("effective rank")
     ax[2].set_title(r"(c)  OLMo-2 1B L3, no sink", color=INK)
-    ax[2].annotate("raw and residual\nagree to 3.5% (median)", xy=(0.52, 0.14),
-                   xycoords="axes fraction", ha="center", fontsize=6.8, color=fs.MUTED)
+    ax[2].annotate("raw and residual\nagree to 3.5%\n(median)", xy=(0.04, 0.33),
+                   xycoords="axes fraction", ha="left", va="center",
+                   fontsize=6.8, color=fs.MUTED)
 
     fs.save(fig, os.path.join(FIGS, "fig3_control.pdf"))
 
@@ -373,25 +372,20 @@ def fig_shared_factor():
         ax[0].plot(frac, p0, "o", ms=1.8, color=ramp[m], zorder=4)
         ax[1].plot(frac, e1, "-", lw=1.2, color=ramp[m], zorder=3)
         ax[1].plot(frac, e1, "o", ms=1.8, color=ramp[m], zorder=4)
-        j = int(np.argmin(np.abs(frac - 0.62)))
-        ends[0].append((NICE[m].replace("Pythia-", ""), frac[j], p0[j], ramp[m]))
-        k = int(np.argmin(np.abs(frac - 0.50)))
-        ends[1].append((NICE[m].replace("Pythia-", ""), frac[k], e1[k], ramp[m]))
+        name = NICE[m].replace("Pythia-", "")
+        ends[0].append((name, frac, p0, ramp[m]))
+        ends[1].append((name, frac, e1, ramp[m]))
 
     ax[0].set_ylabel(r"position-0 mass of $\mathbf{s}$")
     ax[0].set_title(r"(a)  a band of layers shares one left factor", color=INK)
     ax[0].set_ylim(-0.04, 0.72)
-    ax[0].annotate("inside the band the value barely moves;\nat both edges it collapses",
-                   xy=(0.55, 0.11), xycoords="axes fraction", ha="center",
-                   fontsize=6.8, color=fs.MUTED)
     ax[1].set_ylabel(r"$E_1$")
     ax[1].set_title(r"(b)  $E_1$ over the same layers", color=INK)
     ax[1].set_ylim(-0.06, 1.0)
     for k in (0, 1):
         ax[k].set_xlabel("relative depth")
         ax[k].set_xlim(-0.03, 1.03)
-        for txt, x, y, col in ends[k]:
-            fs.label_at(ax[k], x, y, txt, col, dx=0, dy=7.5, fontsize=6.8, ha="center")
+        fs.label_curves(ax[k], ends[k], xrange=(0.32, 0.90))
 
     fs.save(fig, os.path.join(FIGS, "fig5_shared_factor.pdf"))
     rec("[Fig 5] position-0 mass of the leading direction by layer, step 143000:")
