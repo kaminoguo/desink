@@ -31,19 +31,18 @@ if not os.path.isdir(os.path.join(HERE, "paper")):
     FIGS = os.path.join(HERE, "figs")
 os.makedirs(FIGS, exist_ok=True)
 
-RAW = "#D55E00"      # Okabe-Ito vermillion
-DS = "#0072B2"       # Okabe-Ito blue
-THIRD = "#009E73"    # Okabe-Ito green
-PINK = "#CC79A7"
-GREY = "#666666"
+import figstyle as fs
 
-plt.rcParams.update({
-    "font.size": 8, "axes.labelsize": 8, "axes.titlesize": 8, "legend.fontsize": 7,
-    "xtick.labelsize": 7, "ytick.labelsize": 7,
-    "axes.spines.top": False, "axes.spines.right": False,
-    "figure.dpi": 150, "savefig.bbox": "tight", "savefig.pad_inches": 0.01,
-    "pdf.fonttype": 42,
-})
+fs.use()
+RAW, RES = fs.RAW, fs.RES
+RAW_FILL, RES_FILL = fs.RAW_FILL, fs.RES_FILL
+SIZE, OTHER = fs.SIZE, fs.OTHER
+INK, MUTED, GRID = fs.INK, fs.MUTED, fs.GRID
+
+DS = RES
+THIRD = SIZE[0]
+PINK = OTHER
+GREY = MUTED
 
 OUT = []
 PEAK = {"pythia-160m": (4, 12, 768), "pythia-410m": (9, 24, 1024), "pythia-1.4b": (5, 24, 2048)}
@@ -141,88 +140,87 @@ def fig_identity():
     erd = np.array([r["ER_ds"] for r in ROWS])
     ok = np.isfinite(e1) & np.isfinite(err) & np.isfinite(erd) & (e1 < 1) & (erd > 1)
     relER = np.abs(m_predict(e1[ok], erd[ok]) - err[ok]) / err[ok]
-
-    p = e1
     r_ = np.array([implied_share(r["RankMe_raw"], r["RankMe_ds"]) for r in ROWS])
-    good = np.isfinite(p) & np.isfinite(r_)
+    good = np.isfinite(e1) & np.isfinite(r_)
 
-    fig, ax = plt.subplots(1, 2, figsize=(6.6, 2.5))
-    fam = {"pythia-160m": ("o", DS), "pythia-410m": ("s", THIRD),
-           "pythia-1.4b": ("^", RAW), OLMO: ("D", PINK)}
+    fig, ax = plt.subplots(1, 2, figsize=(fs.TEXTWIDTH, 2.32))
+    fig.subplots_adjust(wspace=0.30)
 
-    lo, hi = 0.7, 4000
-    ax[0].plot([lo, hi], [lo, hi], color=GREY, lw=0.8, zorder=1)
-    for m, (mk, c) in fam.items():
-        idx = [i for i in range(len(ROWS)) if ok[i] and ROWS[i]["model"] == m]
-        if not idx:
-            continue
-        ax[0].scatter(err[idx], m_predict(e1[idx], erd[idx]), s=5, marker=mk,
-                      facecolor="none", edgecolor=c, linewidth=0.5,
-                      label=NICE.get(m, "OLMo-2 1B"), zorder=3, alpha=0.55)
-    ax[0].set_xscale("log")
-    ax[0].set_yscale("log")
-    ax[0].set_xlim(lo, hi)
-    ax[0].set_ylim(lo, hi)
+    lo, hi = 0.8, 3000
+    ax[0].plot([lo, hi], [lo, hi], color=fs.RULE, lw=0.8, zorder=1)
+    ax[0].scatter(err[ok], m_predict(e1[ok], erd[ok]), s=5, marker="o",
+                  facecolor=RES, edgecolor="none", alpha=0.30, zorder=3, rasterized=True)
+    ax[0].set(xscale="log", yscale="log", xlim=(lo, hi), ylim=(lo, hi))
     ax[0].set_xlabel(r"measured $\mathrm{ER}(\mathbf{H})$")
     ax[0].set_ylabel(r"predicted by Prop. 2")
-    ax[0].legend(frameon=False, loc="upper left", handletextpad=0.1,
-                 borderpad=0.1, markerscale=1.6)
-    ax[0].set_title("(a) %d records, every layer and step" % ok.sum(), loc="left")
-    ax[0].text(0.97, 0.06, "max rel. error %.0e" % relER.max(),
-               transform=ax[0].transAxes, ha="right", fontsize=7, color=GREY)
+    ax[0].set_title("(a)  every record lies on the identity", color=INK)
+    fs.hero(ax[0], r"$2.9\times10^{-15}$", "largest relative error over 4,743 records",
+            loc=(0.96, 0.11))
+    ax[0].annotate(r"$y=x$", xy=(400, 400), xytext=(3, -10), textcoords="offset points",
+                   color=fs.MUTED, fontsize=7)
 
-    for m, (mk, c) in fam.items():
-        idx = [i for i in range(len(ROWS)) if good[i] and ROWS[i]["model"] == m]
-        if not idx:
-            continue
-        ax[1].scatter(p[idx], r_[idx], s=5, marker=mk, facecolor="none",
-                      edgecolor=c, linewidth=0.5, zorder=3, alpha=0.55)
-    xs = np.linspace(0, 1, 50)
-    ax[1].plot(xs, xs, color=GREY, lw=0.8, zorder=1)
-    ax[1].text(0.60, 0.70, r"$r=p$", fontsize=7, color=GREY)
-    ax[1].set_xlabel(r"$p = E_1$, the share that drives effective rank")
-    ax[1].set_ylabel(r"$r = \sigma_1/\sum_i\sigma_i$" "\nthe share that drives RankMe")
-    ax[1].set_xlim(0, 1)
-    ax[1].set_ylim(0, 1)
-    ax[1].set_title(r"(b) $r \leq p$ in all %d records" % good.sum(), loc="left")
+    fam = [("pythia-160m", SIZE[0], "Pythia-160M"), ("pythia-410m", SIZE[1], "Pythia-410M"),
+           ("pythia-1.4b", SIZE[2], "Pythia-1.4B"), (OLMO, OTHER, "OLMo-2 1B")]
+    ratio = e1 / r_
+    ax[1].axhline(1.0, color=fs.RULE, lw=0.8, zorder=1)
+    for mdl, col, lab in fam:
+        idx = [i for i in range(len(ROWS)) if good[i] and ROWS[i]["model"] == mdl]
+        ax[1].scatter(e1[idx], ratio[idx], s=5, marker="o", facecolor=col,
+                      edgecolor="none", alpha=0.5, zorder=3, rasterized=True)
+    ax[1].set(xlim=(0, 1.0), ylim=(0.7, 30), yscale="log")
+    ax[1].set_yticks([1, 2, 5, 10, 20])
+    ax[1].set_yticklabels(["1", "2", "5", "10", "20"])
+    ax[1].set_xlabel(r"$p=E_1$,  the share effective rank sees")
+    ax[1].set_ylabel(r"$p/r$")
+    ax[1].set_title(r"(b)  the two shares never cross", color=INK)
+    ax[1].annotate(r"$r=p$", xy=(0.03, 1.0), xytext=(0, 4), textcoords="offset points",
+                   color=fs.MUTED, fontsize=7, va="bottom")
+    for i, (mdl, col, lab) in enumerate(fam):
+        ax[1].text(0.97, 0.30 - 0.072 * i, lab, transform=ax[1].transAxes,
+                   color=col, fontsize=7, va="top", ha="right")
 
-    fig.tight_layout(w_pad=1.8)
-    fig.savefig(os.path.join(FIGS, "fig1_identity.pdf"))
-    plt.close(fig)
-
+    fs.save(fig, os.path.join(FIGS, "fig1_identity.pdf"))
     rec("[Fig 1] Prop. 2 on %d records: median rel. err %.1e, p99 %.1e, max %.1e"
         % (ok.sum(), np.median(relER), np.percentile(relER, 99), relER.max()))
     rec("        r <= p violations: %d of %d; median p/r %.1f; max p/r %.1f"
-        % (int((r_[good] > p[good] + 1e-9).sum()), int(good.sum()),
-           np.median(p[good] / r_[good]), (p[good] / r_[good]).max()))
+        % (int((r_[good] > e1[good] + 1e-9).sum()), int(good.sum()),
+           np.median(e1[good] / r_[good]), (e1[good] / r_[good]).max()))
 
 
 # ---------------------------------------------------------------------- Fig 2
 def fig_dynamics():
     keys = ["ER_raw", "ER_ds", "RankMe_raw", "RankMe_ds", "E1_raw", "E1_ds",
             "sink_alpha", "p0_mass"]
-    fig, ax = plt.subplots(2, 3, figsize=(6.6, 3.7), sharex=True)
+    fig, ax = plt.subplots(2, 3, figsize=(fs.TEXTWIDTH, 3.30), sharex=True)
+    fig.subplots_adjust(wspace=0.30, hspace=0.16, right=0.895)
+
     for j, (m, (L, nl, d)) in enumerate(PEAK.items()):
         steps, mu, sd = traj(m, L, keys)
         x = np.maximum(steps, 1)
         for i, (kr, kd, lab) in enumerate([("ER_raw", "ER_ds", "effective rank"),
                                            ("RankMe_raw", "RankMe_ds", "RankMe")]):
-            a = ax[i][j]
-            a.axvspan(16, 1000, color=THIRD, alpha=0.10, lw=0)
-            a.plot(x, mu[kr], "o-", ms=2.5, lw=1.1, color=RAW, label="raw")
-            a.plot(x, mu[kd], "s-", ms=2.5, lw=1.1, color=DS, label="residual")
-            a.fill_between(x, mu[kr] - sd[kr], mu[kr] + sd[kr], color=RAW, alpha=0.3, lw=0)
-            a.fill_between(x, mu[kd] - sd[kd], mu[kd] + sd[kd], color=DS, alpha=0.3, lw=0)
-            a.set_xscale("log")
+            a_ = ax[i][j]
+            fs.shade(a_, 16, 1000, "transient" if (i == 0 and j == 0) else None)
+            fs.band(a_, x, mu[kr] - sd[kr], mu[kr] + sd[kr], RAW_FILL)
+            fs.band(a_, x, mu[kd] - sd[kd], mu[kd] + sd[kd], RES_FILL)
+            a_.plot(x, mu[kd], "-", color=RES, zorder=3)
+            a_.plot(x, mu[kr], "-", color=RAW, zorder=4)
+            a_.plot(x, mu[kd], "o", color=RES, ms=1.8, zorder=5)
+            a_.plot(x, mu[kr], "o", color=RAW, ms=1.8, zorder=6)
+            a_.set_xscale("log")
             if i == 0:
-                a.set_yscale("log")
-                a.set_title(r"%s L%d, $d=%d$" % (NICE[m], L, d), loc="left")
+                a_.set_yscale("log")
+                a_.set_title(r"%s   L%d,  $d\!=\!%d$" % (NICE[m], L, d),
+                             color=INK, fontsize=8.5)
             if j == 0:
-                a.set_ylabel(lab)
+                a_.set_ylabel(lab)
             if i == 1:
-                a.set_xlabel("training step")
-            if i == 0 and j == 0:
-                a.legend(frameon=False, loc="lower left")
+                a_.set_xlabel("training step")
+            # the series names sit on the lines, in the last column only
+            if j == 2:
+                fs.label_ends(a_, [("raw", x[-1], mu[kr][-1], RAW),
+                                   ("residual", x[-1], mu[kd][-1], RES)])
+            a_.set_xlim(0.7, 4.2e5)
 
         i8 = int(np.where(steps == 8000)[0][0])
         rec("[Fig 2] %-12s L%-2d  ER raw %6.1f -> %5.1f (%.0fx down) | residual %6.1f -> %6.1f (%.2fx up)"
@@ -243,52 +241,66 @@ def fig_dynamics():
         rec("             alpha %.2f -> %.2f | p0 mass %.3f -> %.3f | residual ER dips to %.1f at step %d"
             % (mu["sink_alpha"][0], mu["sink_alpha"][-1], mu["p0_mass"][0],
                mu["p0_mass"][-1], mu["ER_ds"].min(), steps[int(np.argmin(mu["ER_ds"]))]))
-    fig.tight_layout(w_pad=1.2, h_pad=0.7)
-    fig.savefig(os.path.join(FIGS, "fig2_dynamics.pdf"))
-    plt.close(fig)
+
+    fs.save(fig, os.path.join(FIGS, "fig2_dynamics.pdf"))
 
 
 # ---------------------------------------------------------------------- Fig 3
 def fig_control():
     keys = ["E1_raw", "E1_ds", "sink_alpha", "ER_raw", "ER_ds", "p0_mass"]
-    fig, ax = plt.subplots(1, 3, figsize=(6.6, 2.1))
-    cols = {"pythia-160m": DS, "pythia-410m": THIRD, "pythia-1.4b": RAW}
+    fig, ax = plt.subplots(1, 3, figsize=(fs.TEXTWIDTH, 1.98))
+    fig.subplots_adjust(wspace=0.32, right=0.985)
+    ramp = dict(zip(PEAK, SIZE))
 
     for m, (L, nl, d) in PEAK.items():
         steps, mu, sd = traj(m, L, keys)
         x = np.maximum(steps, 1)
-        ax[0].plot(x, mu["E1_raw"], "-", lw=1.2, color=cols[m], label=NICE[m])
-        ax[0].plot(x, mu["E1_ds"], "--", lw=1.0, color=cols[m], alpha=0.85)
-        ax[1].plot(x, mu["sink_alpha"], "-", lw=1.2, color=cols[m])
+        ax[0].plot(x, mu["E1_raw"], "-", lw=1.2, color=ramp[m], zorder=3)
+        ax[0].plot(x, mu["E1_ds"], ":", lw=1.0, color=ramp[m], zorder=3)
+        ax[1].plot(x, mu["sink_alpha"], "-", lw=1.2, color=ramp[m], zorder=3)
     so, muo, sdo = traj(OLMO, 3, keys, exp="e2")
     xo = np.maximum(so, 1)
-    ax[1].plot(xo, muo["sink_alpha"], "-", lw=1.2, color=PINK, label="OLMo-2 1B")
+    ax[1].plot(xo, muo["sink_alpha"], "-", lw=1.2, color=OTHER, zorder=3)
 
-    ax[0].set_xscale("log")
+    ax[0].set(xscale="log", xlim=(0.7, 4.2e5), ylim=(-0.03, 1.0))
     ax[0].set_xlabel("training step")
     ax[0].set_ylabel(r"$E_1$")
-    ax[0].set_title("(a) raw (solid), residual (dashed)", loc="left")
-    ax[0].legend(frameon=False, loc="upper left")
-    ax[1].set_xscale("log")
-    ax[1].set_yscale("log")
+    ax[0].set_title(r"(a)  raw (solid) and residual (dotted)", color=INK)
+    ax[0].annotate("residual stays flat\nwhile raw climbs", xy=(0.30, 0.62),
+                   xycoords="axes fraction", ha="center", fontsize=6.8, color=fs.MUTED)
+    for i, (m, (L, nl, d)) in enumerate(PEAK.items()):
+        ax[0].text(0.045, 0.955 - 0.085 * i, NICE[m], transform=ax[0].transAxes,
+                   color=ramp[m], fontsize=7, va="top")
+
+    ax[1].axhline(1.0, color=fs.RULE, lw=0.6, ls=(0, (2, 2)), zorder=1)
+    ax[1].set(xscale="log", yscale="log", xlim=(0.7, 4.2e5))
     ax[1].set_xlabel("training step")
     ax[1].set_ylabel(r"sink strength $\alpha$")
-    ax[1].axhline(1.0, color=GREY, lw=0.6, ls=":")
-    ax[1].set_title("(b) sink strength", loc="left")
-    ax[1].legend(frameon=False, loc="upper left")
+    ax[1].set_title(r"(b)  the sink forms, or does not", color=INK)
+    ax[1].set_yticks([1, 2, 5, 10, 20, 40])
+    ax[1].set_yticklabels(["1", "2", "5", "10", "20", "40"])
+    fs.label_ends(ax[1], [("OLMo-2 1B", xo[-1], muo["sink_alpha"][-1], OTHER)], fontsize=6.8)
+    ax[1].annotate("Pythia", xy=(1.6e5, 26), xytext=(0, 0), textcoords="offset points",
+                   color=SIZE[2], fontsize=7, va="center")
 
-    ax[2].plot(xo, muo["ER_raw"], "o-", ms=2.5, lw=1.1, color=RAW, label="raw")
-    ax[2].plot(xo, muo["ER_ds"], "s-", ms=2.5, lw=1.1, color=DS, label="residual")
-    ax[2].set_xscale("log")
-    ax[2].set_yscale("log")
+    xr, rr, dd = xo[1:], muo["ER_raw"][1:], muo["ER_ds"][1:]
+    fs.band(ax[2], xr, rr, dd, "#EDEDEA", alpha=1.0)
+    ax[2].plot(xr, dd, "-", lw=1.2, color=RES, zorder=3)
+    ax[2].plot(xr, rr, "-", lw=1.2, color=RAW, zorder=4)
+    ax[2].plot(xr, dd, "o", ms=1.8, color=RES, zorder=5)
+    ax[2].plot(xr, rr, "o", ms=1.8, color=RAW, zorder=6)
+    ax[2].plot([2.0], [muo["ER_raw"][0]], "o", ms=2.6, color=RAW, zorder=6)
+    ax[2].plot([2.0], [muo["ER_ds"][0]], "o", ms=2.6, color=RES, zorder=5)
+    ax[2].annotate("init", xy=(2.0, muo["ER_ds"][0]), xytext=(0, 5),
+                   textcoords="offset points", ha="center", fontsize=6.5, color=fs.MUTED)
+    ax[2].set(xscale="log", yscale="log", xlim=(1.1, 9e4))
     ax[2].set_xlabel("training step")
     ax[2].set_ylabel("effective rank")
-    ax[2].set_title("(c) OLMo-2 1B L3, no sink", loc="left")
-    ax[2].legend(frameon=False, loc="upper left")
+    ax[2].set_title(r"(c)  OLMo-2 1B L3, no sink", color=INK)
+    ax[2].annotate("raw and residual\nagree to 3.5% (median)", xy=(0.52, 0.14),
+                   xycoords="axes fraction", ha="center", fontsize=6.8, color=fs.MUTED)
 
-    fig.tight_layout(w_pad=1.4)
-    fig.savefig(os.path.join(FIGS, "fig3_control.pdf"))
-    plt.close(fig)
+    fs.save(fig, os.path.join(FIGS, "fig3_control.pdf"))
 
     e2 = sel("e2")
     gaps = [abs(r["ER_ds"] / r["ER_raw"] - 1) for r in e2 if r["ER_raw"] > 0]
@@ -303,80 +315,98 @@ def fig_control():
 
 # ---------------------------------------------------------------------- Fig 4
 def fig_cka():
+    from matplotlib.colors import LinearSegmentedColormap
+    seq = LinearSegmentedColormap.from_list("seq", ["#F4F8FC", "#8FB8DA", "#2E7EBB", "#0B3B60"])
+    div = LinearSegmentedColormap.from_list("div", [RAW, "#F6F5F3", RES])
+
     e = [x for x in cka if x["model"] == "gpt2"][0]
-    A = np.array(e["raw_cka"])
-    B = np.array(e["desinked_cka"])
-    D = B - A
+    A = np.array(e["raw_cka"]); B = np.array(e["desinked_cka"]); D = B - A
     n = A.shape[0]
-    fig, ax = plt.subplots(1, 3, figsize=(6.6, 2.15))
-    for a, M, ttl, cmap, vlim in [(ax[0], A, "(a) raw CKA", "viridis", (0, 1)),
-                                  (ax[1], B, "(b) residual CKA", "viridis", (0, 1)),
-                                  (ax[2], D, "(c) residual minus raw", "RdBu_r", (-0.6, 0.6))]:
-        im = a.imshow(M, cmap=cmap, vmin=vlim[0], vmax=vlim[1], origin="lower")
-        a.set_title(ttl, loc="left")
-        a.set_xticks(range(0, n, 2))
-        a.set_yticks(range(0, n, 2))
-        a.set_xlabel("layer")
-        if a is ax[0]:
-            a.set_ylabel("layer")
-        a.spines[:].set_visible(False)
-        fig.colorbar(im, ax=a, fraction=0.046, pad=0.03)
-    fig.tight_layout(w_pad=0.8)
-    fig.savefig(os.path.join(FIGS, "fig4_cka.pdf"))
-    plt.close(fig)
+    fig, ax = plt.subplots(1, 3, figsize=(fs.TEXTWIDTH, 1.95))
+    fig.subplots_adjust(wspace=0.42)
+    for a_, M, ttl, cm, vlim in [(ax[0], A, "(a)  raw CKA", seq, (0, 1)),
+                                 (ax[1], B, "(b)  residual CKA", seq, (0, 1)),
+                                 (ax[2], D, "(c)  residual minus raw", div, (-0.6, 0.6))]:
+        im = a_.imshow(M, cmap=cm, vmin=vlim[0], vmax=vlim[1], origin="lower",
+                       interpolation="nearest")
+        a_.set_title(ttl, color=INK)
+        a_.set_xticks(range(0, n, 3)); a_.set_yticks(range(0, n, 3))
+        a_.set_xlabel("layer")
+        if a_ is ax[0]:
+            a_.set_ylabel("layer")
+        for sp in a_.spines.values():
+            sp.set_visible(False)
+        cb = fig.colorbar(im, ax=a_, fraction=0.045, pad=0.03)
+        cb.outline.set_visible(False)
+        cb.ax.tick_params(length=1.6, width=0.4, labelsize=6.5, color=fs.RULE)
+    # the sign of panel (c) is the finding, so give it a contour that survives grayscale
+    ax[2].contour(D, levels=[0.0], colors=[INK], linewidths=0.5)
+    fs.save(fig, os.path.join(FIGS, "fig4_cka.pdf"))
+
     m = ~np.eye(n, dtype=bool)
     rec("[Fig 4] GPT-2 CKA off-diagonal mean %.3f -> %.3f; most negative change %.3f at (L%d,L%d)"
         % (A[m].mean(), B[m].mean(), D.min(),
            np.unravel_index(D.argmin(), D.shape)[0], np.unravel_index(D.argmin(), D.shape)[1]))
     p = [x for x in cka if "pythia" in x["model"]][0]
     Ap, Bp = np.array(p["raw_cka"]), np.array(p["desinked_cka"])
-    mp = ~np.eye(Ap.shape[0], dtype=bool)
-    Dp = Bp - Ap
+    mp = ~np.eye(Ap.shape[0], dtype=bool); Dp = Bp - Ap
     rec("        Pythia-70M CKA off-diagonal mean %.3f -> %.3f; largest change %+.3f"
         % (Ap[mp].mean(), Bp[mp].mean(), Dp.flatten()[np.abs(Dp).argmax()]))
-
 
 
 # ---------------------------------------------------------------------- Fig 5
 def fig_shared_factor():
     """Proposition 5 assumes a band of layers shares one left factor. Test it."""
-    fig, ax = plt.subplots(1, 2, figsize=(6.6, 2.0))
-    cols = {"pythia-160m": DS, "pythia-410m": THIRD, "pythia-1.4b": RAW}
+    fig, ax = plt.subplots(1, 2, figsize=(fs.TEXTWIDTH, 1.90))
+    fig.subplots_adjust(wspace=0.28, right=0.90)
+    ramp = dict(zip(PEAK, SIZE))
+    ends = [[], []]
     for m, (L, nl, d) in PEAK.items():
         g = collections.defaultdict(list)
         for r in sel("e1", m, step=143000):
             g[int(r["layer"])].append(r)
         Ls = sorted(g)
-        frac = [x / max(Ls) for x in Ls]
-        ax[0].plot(frac, [np.mean([q["p0_mass"] for q in g[x]]) for x in Ls],
-                   "o-", ms=2.5, lw=1.1, color=cols[m], label=NICE[m])
-        ax[1].plot(frac, [np.mean([q["E1_raw"] for q in g[x]]) for x in Ls],
-                   "o-", ms=2.5, lw=1.1, color=cols[m])
-    ax[0].axhline(0.2, color=GREY, lw=0.6, ls=":")
-    ax[0].set_ylabel("position-0 mass of $\\mathbf{s}$")
-    ax[1].set_ylabel(r"$E_1$")
-    for a, t in zip(ax, ["(a) the leading direction sits on position 0",
-                         r"(b) $E_1$ over the same layers"]):
-        a.set_xlabel("relative depth")
-        a.set_title(t, loc="left")
-    ax[0].legend(frameon=False, loc="center right")
-    fig.tight_layout(w_pad=1.6)
-    fig.savefig(os.path.join(FIGS, "fig5_shared_factor.pdf"))
-    plt.close(fig)
+        frac = np.array([x / max(Ls) for x in Ls])
+        p0 = np.array([np.mean([q["p0_mass"] for q in g[x]]) for x in Ls])
+        e1 = np.array([np.mean([q["E1_raw"] for q in g[x]]) for x in Ls])
+        ax[0].plot(frac, p0, "-", lw=1.2, color=ramp[m], zorder=3)
+        ax[0].plot(frac, p0, "o", ms=1.8, color=ramp[m], zorder=4)
+        ax[1].plot(frac, e1, "-", lw=1.2, color=ramp[m], zorder=3)
+        ax[1].plot(frac, e1, "o", ms=1.8, color=ramp[m], zorder=4)
+        j = int(np.argmin(np.abs(frac - 0.62)))
+        ends[0].append((NICE[m].replace("Pythia-", ""), frac[j], p0[j], ramp[m]))
+        k = int(np.argmin(np.abs(frac - 0.50)))
+        ends[1].append((NICE[m].replace("Pythia-", ""), frac[k], e1[k], ramp[m]))
 
+    ax[0].set_ylabel(r"position-0 mass of $\mathbf{s}$")
+    ax[0].set_title(r"(a)  a band of layers shares one left factor", color=INK)
+    ax[0].set_ylim(-0.04, 0.72)
+    ax[0].annotate("inside the band the value barely moves;\nat both edges it collapses",
+                   xy=(0.55, 0.11), xycoords="axes fraction", ha="center",
+                   fontsize=6.8, color=fs.MUTED)
+    ax[1].set_ylabel(r"$E_1$")
+    ax[1].set_title(r"(b)  $E_1$ over the same layers", color=INK)
+    ax[1].set_ylim(-0.06, 1.0)
+    for k in (0, 1):
+        ax[k].set_xlabel("relative depth")
+        ax[k].set_xlim(-0.03, 1.03)
+        for txt, x, y, col in ends[k]:
+            fs.label_at(ax[k], x, y, txt, col, dx=0, dy=7.5, fontsize=6.8, ha="center")
+
+    fs.save(fig, os.path.join(FIGS, "fig5_shared_factor.pdf"))
     rec("[Fig 5] position-0 mass of the leading direction by layer, step 143000:")
     for m, (L, nl, d) in PEAK.items():
         g = collections.defaultdict(list)
         for r in sel("e1", m, step=143000):
             g[int(r["layer"])].append(r["p0_mass"])
         v = {x: np.mean(y) for x, y in g.items()}
-        band = [x for x in sorted(v) if v[x] > 0.20]
-        inband = [v[x] for x in band]
+        band_ = [x for x in sorted(v) if v[x] > 0.20]
+        inband = [v[x] for x in band_]
         rec("  %-12s band L%d..L%d (%d of %d layers), p0 mass %.2f to %.2f, spread within band %.3f"
-            % (NICE[m], band[0], band[-1], len(band), len(v),
+            % (NICE[m], band_[0], band_[-1], len(band_), len(v),
                min(inband), max(inband), np.std(inband)))
         rec("               outside the band: " + " ".join(
-            "L%d %.2f" % (x, v[x]) for x in sorted(v) if x not in band))
+            "L%d %.2f" % (x, v[x]) for x in sorted(v) if x not in band_))
 
 
 # ------------------------------------------------------- attention to position 0

@@ -206,7 +206,7 @@ Removing the $k$-th eigendirection, $\bH_{-k} = \bH(\bI - \bv_k\bv_k^\top)$, giv
 \includegraphics[width=\textwidth]{figs/fig1_identity.pdf}
 \caption{\textbf{The value of a rank statistic is fixed by one share and the residual.}
 \textbf{(a)}~Effective rank predicted by Equation~\ref{eq:er} against the measured value, on every record we hold: Pythia at 160M, 410M and 1.4B over 20 checkpoints, OLMo-2 1B over 13, all layers of each, three disjoint corpus blocks, and the 300-record sample-size sweep of Table~\ref{tab:nsweep}. 4{,}743 points in total. The largest relative error is $2.9\times10^{-15}$, at the level of double precision.
-\textbf{(b)}~The two shares. Effective rank is driven by $p = E_1$ and RankMe by $r = \sigma_1/\sum_i\sigma_i$. Lemma~\ref{lem:order} forces $r \le p$; the median ratio is $6.2$ and the largest is $20.6$. Points near $p = 1$ and $r \approx 0.06$ are the converged Pythia checkpoints, where the same direction destroys effective rank and barely moves RankMe.}
+\textbf{(b)}~The ratio of the two shares, $p = E_1$ for effective rank against $r = \sigma_1/\sum_i\sigma_i$ for RankMe. Lemma~\ref{lem:order} forces $r \le p$, so every record sits above $p/r = 1$ and none crosses; the median is $6.2$ and the largest $20.6$. The converged Pythia checkpoints on the right carry $p$ near $0.9$ against $r$ near $0.06$.}
 \label{fig:identity}
 \end{figure}
 
@@ -263,9 +263,9 @@ OLMo-2 1B & L3 & 1.01 & \multicolumn{1}{c}{1.18$^\dagger$} & 0.008 & \multicolum
 
 Table~\ref{tab:sink} tracks the direction across checkpoints. At initialization it places a tenth of a percent of its mass on position~0 and $\alpha$ sits near $1.2$, so it is ordinary content variance and $E_1(\bH)$ agrees with $E_1(\bC)$ to two digits. By the end of training the same direction carries about half its energy on the $1/512$ of tokens at position~0, a 250-fold enrichment, and $\alpha$ has reached $19.5$ at 160M and $44.7$ at 410M. $E_1(\bC)$ sits between $0.028$ and $0.048$ at both ends of training in all three models. It rises as high as $0.16$ during the early transient of Section~\ref{sec:dynamics} and comes back down. A residual that stays this diffuse is what makes Equation~\ref{eq:proj} a clean split; the projection is not rebalancing two components of comparable size.
 
-\paragraph{Attention concentrates on the same position.} Norm and variance at position~0 identify a massive-activation direction; the name attention sink also asks for attention mass. Over 19 Pythia-70M checkpoints, mean attention to position~0 at L3 rises from $0.013$ to $0.135$, a factor of ten, and ranks with $\alpha$ at Spearman $0.725$ ($p = 4.5\times10^{-4}$). Both are flat until step~1{,}000 and both climb afterwards.
+\paragraph{Attention concentrates on the same position.} Norm and variance at position~0 identify a massive-activation direction; the name attention sink also asks for attention mass. Over 19 Pythia-70M checkpoints, mean attention to position~0 at L3 rises from $0.013$ to $0.135$ and ranks with $\alpha$ at Spearman $0.725$ ($p = 4.5\times10^{-4}$).
 
-\paragraph{Where the identification holds.} The identification needs a spectral gap. In GPT-2 the ratio $\sigma_1/\sigma_2$ sits near $14.7$ across L2 to L4 and falls to $1.1$ at L0 and $3.0$ at L11. In Qwen2.5-1.5B it reaches $154$ at L2. Where the gap is near~1 the leading direction is not separated from content directions and $\bs$ should not be read as the sink. We report the gap alongside every layer-level claim and treat $\sigma_1/\sigma_2 > 3$ as the condition under which the identification is meaningful.
+\paragraph{Where the identification holds.} The identification needs a spectral gap. In GPT-2 the ratio $\sigma_1/\sigma_2$ sits near $14.7$ across L2 to L4 and falls to $1.1$ at L0; in Qwen2.5-1.5B it reaches $154$ at L2. Where the gap is near~1 the leading direction is not separated from content and $\bs$ should not be read as the sink. We treat $\sigma_1/\sigma_2 > 3$ as the condition under which the identification is meaningful.
 
 \begin{table}[t]
 \centering
@@ -291,9 +291,9 @@ Pythia-410M & L9 & 2.3  & \textbf{539.8} & 2.3  & 2.3  & $2.3 \pm 0.00$ \\
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{figs/fig2_dynamics.pdf}
-\caption{\textbf{The collapse is the sink; the early transient is not.} Peak-sink layer of each model, 20 released checkpoints, mean over three disjoint blocks of 200{,}704 OpenWebText tokens with the block spread shaded. Shading in green marks steps 16 to 1{,}000.
-\textbf{Top:} effective rank. Raw falls by $21\times$ to $119\times$; the residual dips early, recovers, and ends above where it started.
-\textbf{Bottom:} RankMe on the same matrices. Neither curve collapses, and the raw curve turns down after the sink forms while the residual keeps rising.}
+\caption{\textbf{The collapse is the sink; the early transient is not.} Peak-sink layer of each model, 20 checkpoints, mean over three disjoint blocks of 200{,}704 OpenWebText tokens with the block spread shaded. The grey band marks steps 16 to 1{,}000.
+\textbf{Top:} effective rank. Raw falls by $21\times$ to $119\times$; the residual dips, recovers, and ends above where it started.
+\textbf{Bottom:} RankMe on the same matrices. Neither collapses, and the raw curve turns down once the sink forms while the residual keeps rising.}
 \label{fig:dyn}
 \end{figure}
 
@@ -348,9 +348,9 @@ The fits above show that $\alpha$ tracks $E_1$. For the direction of the relatio
 \centering
 \includegraphics[width=\textwidth]{figs/fig3_control.pdf}
 \caption{\textbf{The raw-to-residual gap is a function of sink strength.}
-\textbf{(a)}~$E_1$ raw (solid) and residual (dashed) at the peak-sink layer of each Pythia model. The raw curves separate from the residual exactly when $\alpha$ leaves 1.
-\textbf{(b)}~Sink strength. OLMo-2 1B stays below $1.27$ across all 17 layers and 13 checkpoints.
-\textbf{(c)}~OLMo-2 1B L3. With no sink, raw and residual effective rank agree to a median of $3.5$ percent and both rise. The dip at step~1{,}000 is the sink-free early transient of Section~\ref{sec:dynamics}, here at $\alpha = 1.04$.}
+\textbf{(a)}~$E_1$ raw (solid) and residual (dotted) at the peak-sink layer of each Pythia model. The wide separation after step~2{,}000 tracks $\alpha$; the narrower separation during the transient does not, and $\alpha$ stays inside $[0.93, 1.22]$ there.
+\textbf{(b)}~Sink strength, with $\alpha = 1$ dashed. OLMo-2 1B stays below $1.27$ across all 17 layers and 13 checkpoints.
+\textbf{(c)}~OLMo-2 1B L3, shaded between the curves. Raw and residual agree to a median of $3.5$ percent and both rise. Initialization is a separate point, since the log axis would turn the gap to step~1{,}000 into a slope that is not there. The dip at step~1{,}000 is the sink-free transient of Section~\ref{sec:dynamics}, at $\alpha = 1.04$.}
 \label{fig:control}
 \end{figure}
 
@@ -394,30 +394,21 @@ Proposition~\ref{prop:aniso} splits anisotropy into a sink term and a residual t
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{figs/fig5_shared_factor.pdf}
-\caption{\textbf{A contiguous band of layers shares one left factor.} Final checkpoint, mean over three corpus blocks, depth normalized so the three models overlay.
-\textbf{(a)}~Position-0 mass of the leading direction. It holds a narrow range across a contiguous band of layers and collapses at both edges of the band. This is the hypothesis Proposition~\ref{prop:cka} needs.
-\textbf{(b)}~$E_1$ over the same layers, for reference. The two profiles have the same support.}
-\label{fig:shared}
-\end{figure}
-
-\begin{figure}[t]
-\centering
 \includegraphics[width=\textwidth]{figs/fig4_cka.pdf}
 \caption{\textbf{Raw CKA reports one shared direction.} GPT-2, 22{,}819 WikiText-2 tokens.
 \textbf{(a)}~Raw CKA marks L2 through L11 as indistinguishable at $\CKA \ge 0.995$.
 \textbf{(b)}~After the projection the same layers show a gradient in depth.
-\textbf{(c)}~The difference. The largest single change is $-0.569$ between L2 and L11, the pair raw CKA rates most similar.}
+\textbf{(c)}~The difference; the black curve is the zero level, so the sign survives a grayscale print. The largest single change is $-0.569$ between L2 and L11, the pair raw CKA rates most similar.}
 \label{fig:cka}
 \end{figure}
 
-Proposition~\ref{prop:cka} asks two layers to share one high-norm rank-one term. Figure~\ref{fig:shared} measures that. At the final checkpoint of each Pythia model the position-0 mass of the leading direction holds a narrow range across a contiguous band of layers: $0.39$ to $0.44$ over L4 to L10 at 160M, $0.57$ to $0.65$ over L6 to L23 at 410M, $0.38$ to $0.51$ over L4 to L23 at 1.4B. At every layer outside a band it is $0.10$ or less, and at every layer but one per model it is under $0.05$. Eighteen consecutive layers that place close to the same fraction of their leading direction's energy on the same rows share a left factor, and the band has the shape that raw CKA reports as one indistinguishable block.
+Proposition~\ref{prop:cka} asks two layers to share one high-norm rank-one term. Figure~\ref{fig:shared} in Appendix~\ref{app:extra} measures that. At the final checkpoint of each Pythia model the position-0 mass of the leading direction holds a narrow range across a contiguous band of layers: $0.39$ to $0.44$ over L4 to L10 at 160M, $0.57$ to $0.65$ over L6 to L23 at 410M, $0.38$ to $0.51$ over L4 to L23 at 1.4B. At every layer outside a band it is $0.10$ or less, and at every layer but one per model it is under $0.05$. Eighteen consecutive layers that place close to the same fraction of their leading direction's energy on the same rows share a left factor, and the band has the shape that raw CKA reports as one indistinguishable block.
 
 Figure~\ref{fig:cka} shows what that does to CKA in GPT-2. Raw CKA rates L2 through L11 as indistinguishable, and after the projection the same block shows a monotone decay in depth. The off-diagonal mean falls from $0.703$ to $0.610$, with the largest single change $-0.569$ at the L2-L11 pair raw CKA rated most similar. In Pythia-70M that mean instead rises, $0.360$ to $0.444$, largest change $+0.474$ at L4-L6. The aggregate change is not stable in sign across models; the layer-pair structure is what changes.
 
 \subsection{Larger models produce larger distortion figures, partly by construction}
 
-Table~\ref{tab:scale} in Appendix~\ref{app:extra} reports the layer of maximum distortion for three larger models. Pythia-6.9B reaches $D = 733$, GPT-2-XL reaches $288$, and Qwen2.5-1.5B reaches $532$. Corollary~\ref{cor:bound} caps each at the residual rank in the last column, and the cap is what separates the scales: $518$ and $546$ for the two 1.5B models against $1298$ for Pythia-6.9B. A headline that contamination worsens with scale is in part a statement about model width. Within a width the cap does no work, and the two 1.5B models differ by $1.8\times$ in $D$ on caps that differ by $1.05\times$; there the difference is $E_1$, which reaches $0.998$ in Qwen2.5-1.5B at L4 while GPT-2-XL peaks at $0.942$. Qwen2.5-1.5B also carries the largest spectral gap we measured, $154$ at L2, with a position-0 norm ratio of $113$.
+Table~\ref{tab:scale} in Appendix~\ref{app:extra} reports the layer of maximum distortion for three larger models: $D = 733$ at Pythia-6.9B, $532$ at Qwen2.5-1.5B, $288$ at GPT-2-XL. Corollary~\ref{cor:bound} caps each at the residual rank, and the cap is what separates the scales, $518$ and $546$ for the two 1.5B models against $1298$ for Pythia-6.9B, so a headline that contamination worsens with scale is in part a statement about model width. Within a width the cap does no work: the two 1.5B models differ $1.8\times$ in $D$ on caps that differ $1.05\times$, and there the difference is $E_1$, which reaches $0.998$ in Qwen2.5-1.5B at L4 against $0.942$ for GPT-2-XL. Qwen2.5-1.5B also carries the largest spectral gap we measured, $154$ at L2, with a position-0 norm ratio of $113$.
 
 %======================================================================
 \section{What the leading direction does not do}
@@ -458,9 +449,9 @@ L6, the output of the last block, is the exception and it is instructive. There 
 %======================================================================
 \section{Conclusion}
 
-Effective rank and RankMe factor into a binary-entropy term and a power of the residual value, so a study that reports either has reported a share and a residual and no third thing. The share is not the same for the two statistics, and it is never the larger one for RankMe; that ordering is what decides how much damage a single direction can do. In Pythia-1.4B the direction takes $85$ percent of the eigenvalue mass against $6$ percent of the singular-value mass, and distorts the two by $243\times$ and $1.24\times$ respectively. It is the attention sink, and it gets there during training: by the end of the run about half its energy sits on the $1/512$ of tokens at position~0, while a model that has not yet grown one shows raw and residual metrics a median of $3.5$ percent apart. Projecting it out leaves a residual that grows over training, and a single transient before step~1{,}000 that the sink cannot account for.
+Effective rank and RankMe factor into a binary-entropy term and a power of the residual value, so a study that reports either has reported a share and a residual and no third thing. The share is not the same for the two statistics and is never the larger one for RankMe, and that ordering decides how much damage one direction can do: in Pythia-1.4B it takes $85$ percent of the eigenvalue mass against $6$ percent of the singular-value mass, and distorts the two by $243\times$ and $1.24\times$. It is the attention sink, and it becomes one during training, ending with about half its energy on the $1/512$ of tokens at position~0. A model that has not yet grown one shows raw and residual a median of $3.5$ percent apart. Projecting it out leaves a residual that grows, and one transient before step~1{,}000 that the sink cannot account for.
 
-Reporting practice follows. Quote effective rank next to $E_1$ and $\ER(\bC)$, which determine it, and next to the spectral gap, which says whether the removed direction is the sink at all. Quote a distortion factor next to the residual value that bounds it and the token count it was measured at. Prefer RankMe if only one rank statistic fits, and report its residual anyway: a $1.24\times$ offset inverted two of our three trajectories. The implementation is one line, \verb|H_res = H - (H @ s)[:, None] * s|, with \verb|s| the top right singular vector of the centered \verb|H|.
+Reporting practice follows. Quote effective rank next to $E_1$, $\ER(\bC)$ and the spectral gap, and prefer RankMe when only one rank statistic fits, with its residual alongside: a $1.24\times$ offset inverted two of our three trajectories.
 
 %======================================================================
 \bibliographystyle{tmlr}
@@ -554,6 +545,16 @@ Replacing $\bs$ by $\bv_k$ in Lemma~\ref{lem:resid} gives a residual covariance 
 \section{Additional measurements}
 \label{app:extra}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figs/fig5_shared_factor.pdf}
+\caption{\textbf{A contiguous band of layers shares one left factor.} Final checkpoint, mean over three corpus blocks, depth normalized so the three models overlay.
+\textbf{(a)}~Position-0 mass of the leading direction. It holds a narrow range across a contiguous band of layers and collapses at both edges of the band. This is the hypothesis Proposition~\ref{prop:cka} needs.
+\textbf{(b)}~$E_1$ over the same layers, for reference. The two profiles have the same support. Darker ink is the larger model.}
+\label{fig:shared}
+\end{figure}
+
+
 \begin{table}[t]
 \centering
 \caption{\textbf{Contamination at the layer of maximum distortion, final checkpoints.} $D = \ER(\bC)/\ER(\bH)$, and the bound is Corollary~\ref{cor:bound}. The two 1.5B models have almost the same bound and differ by $1.8\times$ in $D$; Pythia-6.9B has $2.4\times$ the bound of either.}
@@ -569,7 +570,6 @@ Pythia-6.9B   & GPT-NeoX & 6.9B & L8  & 0.949 & 0.024 & 733 & 1298 \\
 \bottomrule
 \end{tabular}
 \end{table}
-
 
 \begin{table}[t]
 \centering
